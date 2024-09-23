@@ -1,0 +1,8 @@
+{
+    "require": {
+        "vlucas/phpdotenv": "^5.5",
+        "cboden/ratchet": "^0.4.4",
+        "google/apiclient": "^2.15",
+        "convertapi/convertapi-php": "^2.0"
+    }
+}

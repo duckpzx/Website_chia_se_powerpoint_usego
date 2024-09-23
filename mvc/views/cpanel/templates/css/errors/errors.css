@@ -1,0 +1,77 @@
+.block {
+    margin-top: 48px;
+}
+
+.container-error {
+    background: var(--white);
+}
+
+.container-error .wrapper-alert {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--white);
+    padding: 0px 20px;
+    gap: 20px;
+    color: #616161
+}
+
+.container-error .wrapper-alert .poster-img {
+    width: 400px;
+}
+
+.container-error .wrapper-alert .title-err {
+    font-size: 27px;
+    padding-bottom: 2.5px;
+}
+
+.container-error .wrapper-alert .link-home {
+    display: flex;
+    align-items: center;
+    justify-content: placeholder;
+    font-family: inherit;
+    font-weight: bold;
+    color: var(--white);
+    background: var(--main);
+    padding: 12px 27px;
+    border-radius: 2px;
+    box-shadow: 0px 1px 2px #bfbfbf;
+    cursor: pointer;
+    transition: all .2s ease
+}
+
+.container-error .wrapper-alert .link-home:hover {
+    opacity: 0.8
+}
+
+.container-error .wrapper-alert .des-err {
+    text-align: center;
+    padding: 40px 0;
+    padding-top: 0;
+    width: 50%;
+    line-height: 2rem
+}
+
+.container-error .wrapper-alert .des-err a {
+    text-decoration: none;
+}
+
+.container-error .wrapper-alert .des-err b {
+    font-weight: 500;
+    color: var(--main);
+}
+
+@media (max-width: 767px) {
+    .container-error .wrapper-alert .poster-err {
+        width: 90%;
+        object-fit: cover;
+    }
+
+    .container-error .wrapper-alert .title-err {
+        font-size: 22px;
+    }
+
+    .container-error .wrapper-alert .des-err {
+        width: 95%
+    }
+}
