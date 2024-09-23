@@ -1,5 +1,4 @@
-<h2>USEGO</h2>
-<br>
+<h2 style="color: #2c3e50;">USEGO</h2>
 <h4>Hướng dẫn 💗</h4>
 <p>
     <b>Các công cụ cần cài:</b>
