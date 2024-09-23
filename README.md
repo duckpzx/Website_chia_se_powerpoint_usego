@@ -1,4 +1,4 @@
-<h2>🏵️ USEGO 🏵️</h2>
+<h2>☃️ Usego</h2>
 <h4>💗 Hướng dẫn </h4>
 <p>
     <b>Các công cụ cần cài:</b>
