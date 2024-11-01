@@ -13,6 +13,7 @@
         
         public function insert( $table, $data ) 
         {
+
             $keyArr =  array_keys( $data );
             $fieldStr = implode(', ', $keyArr );
             $valueStr = ':'.implode(', :', $keyArr );

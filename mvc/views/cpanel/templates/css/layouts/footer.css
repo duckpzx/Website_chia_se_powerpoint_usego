@@ -397,7 +397,8 @@
 }
 
 .modal-content .newfeed-new-item {
-    padding: 10px 24px;
+    width: 100%; 
+    overflow-y: scroll;
 }
 
 .modal-content header {
@@ -408,6 +409,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 15px 24px;
+    z-index: 2;
     border-bottom: 1px solid rgba(0,0,0,0.06);
     box-sizing: border-box;
     transition: all .2s ease
@@ -421,7 +423,8 @@
 
 .modal-content header .title h4 {
     font-size: 20px;
-    font-weight: 600
+    font-weight: 500;
+    transform: translateY(3.5px);
 }
 
 .modal-content header .title .line-site {
@@ -473,6 +476,7 @@
     font-weight: 500;
     line-height: 1.6rem;
     -webkit-line-clamp: 8;
+    line-clamp: 8;
     display: box;
     display: -webkit-box;
     -webkit-box-orient: vertical;
@@ -672,4 +676,4 @@
     100% {
       transform: rotate(360deg);
     }
-  } 
+} 

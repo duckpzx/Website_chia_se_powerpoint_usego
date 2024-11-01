@@ -1,27 +1,33 @@
 <?php 
-    if ( !empty( $dataSql['dataAction'] ) ) :
-    $dataAction = $dataSql['dataAction'];
-    endif; // Get data 
+    $dataKeys = ['dataAction', 'requestAction'];
+    
+    foreach ($dataKeys as $key) {
+        if (!empty($dataSql[$key])) {
+            ${$key} = Compact::compactData($dataSql, $key);
+        }
+    }
 ?>
-
 <main>
-    <div class="container" style="background: url('<?= _TEMPLATE ?>images/background/introduction_bg.png')">
+    <div class="container">
     <div class="block"></div>
        <div class="container-action">
             <div class="group-wrapper">
                 <div class="group-title">
                     <div class="content">
-                        <h3> Thông tin chi tiết bài đăng </h3>
+                        <div class="title">
+                            <p>- Cho phép hiển thị nội dung này </p>
+                            <div class="checkbox <?php echo ( $dataAction[0]['hide'] == 'false' ? 'active' : '' ) ?>" id="btn-hide"></div>
+                        </div>
                         <div class="infomation">
-                        <span> <b> Mã giao dịch: </b> 
-                        <div id="token-trade" style="color: rgb(73, 190, 255)" ><?php if (!empty( $dataAction[0]['token_trade'] )) echo  $dataAction[0]['token_trade']; ?></div>
+                        <span> <p> Mã giao dịch: </s> 
+                        <div id="token-trade" style="color: rgb(99, 102, 241);" ><?php if (!empty( $dataAction[0]['token_trade'] )) echo  $dataAction[0]['token_trade']; ?></div>
                             <button id="btn-qr" title="Coppy QR">
                                 <i class="fa-solid fa-qrcode"></i>
                             </button> 
                         </span>
-                        <span> <b>Thời gian:</b> 
-                        <?php if (!empty( $dataAction[0]['time'] )) : ?>
-                            <?php showInfo::dateDiffInMinutes( $dataAction[0]['time'] ) ?>
+                        <span> <p> <i class="fa-regular fa-clock"></i> </p> 
+                        <?php if (!empty( $dataAction[0]['createAt'] )) : ?>
+                            <?php showInfo::dateDiffInMinutes( $dataAction[0]['createAt'] ) ?>
                         <?php endif; ?>
                         </span>
                         </div>
@@ -29,11 +35,11 @@
                 </div>
                 <div class="group-filter">
                     <div class="control">
-                        <span> Tìm theo tên </span>
+                        <span> Tìm kiếm </span>
                         <input 
                             type="text" 
                             name="search_sercive" 
-                            placeholder="Nhập tên cần tìm">
+                            placeholder="Nhập tên người dùng">
                     </div>
                     <div class="control">
                         <span> Bộ lọc </span>
@@ -44,13 +50,13 @@
                     </div>
                 </div>
                 <div class="group-alert">
-                    <?php if (!empty($dataAction) && $dataAction[0]['money_received'] <= $dataAction[0]['money_agrees']) : ?>
+                    <?php if (!empty($requestAction) && $requestAction[0]['money_agrees']) : ?>
                         <section>
-                            <b>Thông báo: </b>        
+                            <b> <i class="fa-solid fa-circle-exclamation"></i></b>        
                             <span> Số tiền bạn thanh toán không đủ, vui lòng nạp thêm</span>
                         </section>
                     <?php else : ?>
-                        <?php if (!empty($dataAction[0]['images'])) : ?>
+                        <?php if (!empty($requestAction[0]['images'])) : ?>
                             <section>
                                 <b>Thông báo: </b>        
                                 <span> Người làm nhiệm vụ đã hoàn thành công việc</span>
@@ -63,37 +69,36 @@
                         <tr>
                             <th width="5%"> STT </small> </th>
                             <th width="20%"> Tài khoản <small>
-                                <i class="fa-regular fa-circle-question"
-                                title="Tên của người gửi yêu cầu"></i>
-
+                                <i class="fa-solid fa-question" style="transform: translateY(-0.75px); font-weight: 500; font-size: 12px"
+                                title="Thông tin của người gửi yêu cầu"></i>
                             </small> </th>
-                            <th width="20%"> Tín nhiệm <small>
-                                <i class="fa-regular fa-circle-question"
+                            <th width="15%"> Tín nhiệm <small>
+                                <i class="fa-solid fa-question" style="transform: translateY(-0.75px); font-weight: 500; font-size: 12px"
                                 title="Độ tín nhiệm dựa vào số bài đăng"></i>
-
                             </small> </th>
-                            <th width="20%"> Giá yêu cầu <small>
-                                <i class="fa-regular fa-circle-question"
+                            <th width="15%"> Hoàn thành <small>
+                                <i class="fa-solid fa-question" style="transform: translateY(-0.75px); font-weight: 500; font-size: 12px"
+                                title="Tổng yêu cầu dịch vụ hoàn thành"></i>
+                            </small> </th>
+                            <th width="15%"> Giá yêu cầu <small>
+                                <i class="fa-solid fa-question" style="transform: translateY(-0.75px); font-weight: 500; font-size: 12px"
                                 title="Giá người yêu cầu để làm"></i>
-
                             </small> </th>
-                            <th width="20%"> Thời gian <small>
-                                <i class="fa-regular fa-circle-question"
+                            <th width="15%"> Thời gian <small>
+                                <i class="fa-solid fa-question" style="transform: translateY(-0.75px); font-weight: 500; font-size: 12px"
                                 title="Thời gian gửi yêu cầu"></i>
-
                             </small> </th>
                             <th width="15%"> Hành động <small>
-                                <i class="fa-regular fa-circle-question"
+                                <i class="fa-solid fa-question" style="transform: translateY(-0.75px); font-weight: 500; font-size: 12px"
                                 title="Xác nhận phê duyệt người này"></i>
-
                             </small> </th>
                         </tr>
                     </table>
                     <table id="table-content">
-                        <?php if (!empty( $dataAction )) : ?>
+                        <?php if (!empty( $requestAction )) : ?>
                             <?php
                                 $isTrue = false;
-                                foreach( $dataAction as $item )
+                                foreach( $requestAction as $item )
                                 {
                                     if ( $item['status'] === 'XN' ) 
                                     $isTrue = true;
@@ -102,8 +107,8 @@
                         <?php endif; ?>
                         <tr>
                             <td colspan="<?php echo ( $isTrue ) ? 6 : 5 ?>" class="title"> 
-                                <a href="/usego/instruct/read?id=<?php if (!empty( $dataAction[0]['nfId'] )) echo $dataAction[0]['nfId'] ?> "> 
                                 <b>Tiêu đề:</b> 
+                                <a href="/usego/instruct/read?id=<?php if (!empty( $dataAction[0]['nfId'] )) echo $dataAction[0]['nfId'] ?> "> 
                                 <?php if (!empty( $dataAction[0]['title'] )) echo $dataAction[0]['title'] ?> 
                                 </a> 
                             </td>
@@ -115,20 +120,24 @@
                             </td>
                             <?php endif; ?>
                         </tr>
-                        <?php if (!empty( $dataAction )) : ?>
-                            <?php foreach( $dataAction as $item ) : ?>
+                        <?php if (!empty( $requestAction )) : ?>
+                            <?php $count = 1; foreach( $requestAction as $item ) : ?>
                                 <tr>
-                                    <td width="5%"> 
+                                    <td width="5%" data-id="<?= $item['id_server'] ?? '' ?>"> 
                                         <span> 
-                                            <?php if (!empty( $item['stt'] )) echo $item['stt'] ?>
+                                            <?= $count++ ?? '' ?>
                                         </span> 
                                     </td>
                                     <td width="20%"> 
-                                        <a href="/usego/profile/?id=<?= $item['userId'] ?>"> 
+                                        <a href="/usego/profile/?id=<?= $item['user_id'] ?>"> 
+                                            <img class="avt-zoom" 
+                                                src="<?= _TEMPLATE . 'images/uploads/avatar/' . $item['avatar'] ?? ''  ?>" 
+                                                onerror="this.src='<?php echo _TEMPLATE . 'images/icons/not-images.png'; ?>'"
+                                                width="40">
                                             <?= showInfo::setFullName($item, 'no_key') ?> 
                                         </a> 
                                     </td>
-                                    <td width="20%"> 
+                                    <td width="15%"> 
                                         <?php if (!empty( $item['topic_level'] )) : ?>
                                             <?php
                                                 $regime = '';
@@ -149,22 +158,27 @@
                                                 }; 
                                             ?>
                                             <span class="<?= $regime ?>">  
-                                                <?= $item['topic_level'] ?>
+                                                <?= $item['topic_level'] ?? '' ?>
                                             </span>
                                         <?php endif; ?>
-                                     </td>
-                                    <td width="20%"> 
-                                        <span>
-                                            <?php if (!empty( $item['money_agrees'] )) echo $item['money_agrees'] ?>.000 đ 
-                                        </span> 
                                     </td>
-                                    <td width="20%"> 
-                                        <span>
-                                            <?php if (!empty( $item['createAt'] )) echo $item['createAt'] ?>
+                                    <td width="15%"> 
+                                        <span> 
+                                            <?= $item['total_server'] ?? 'No data' ?> Dich vụ
                                         </span> 
                                     </td>
                                     <td width="15%"> 
-                                        <?php if ( $item['status'] === 'XN' ) : ?>
+                                        <span>
+                                            <?= showInfo::formatCoin($item['money_agrees'] ?? 0 ) ?>
+                                        </span> 
+                                    </td>
+                                    <td width="15%"> 
+                                        <span>
+                                            <?= $item['createAt'] ?? '' ?>
+                                        </span> 
+                                    </td>
+                                    <td width="15%"> 
+                                        <?php if ( $item['status'] === 'XN' || $item['status'] === 'HT' ) : ?>
                                             <button class="btn-active" 
                                                 data-id="<?php if (!empty( $item['userId'] )) echo $item['userId'] ?>">
                                                 <span> Đã xác nhận </span>
@@ -180,7 +194,7 @@
                             <?php endforeach; ?>
                         <?php endif; ?>
                     </table>
-                    <?php if (empty( $dataAction )) : ?>
+                    <?php if (empty( $requestAction )) : ?>
                         <div class="product-lists" data-temp="<?= _TEMPLATE ?>">
                             <div class="no-posts-yet">
                                 <div class="poster">

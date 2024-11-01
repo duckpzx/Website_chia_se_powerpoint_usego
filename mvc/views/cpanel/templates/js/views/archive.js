@@ -148,171 +148,116 @@ function confirmIcon(button) {
 
 const searchArchive = $('input[name=search-archive]');
 
-const archiveJavascript = 
-{
-    renderError: () => {
-        var html = 
-        `<div class="product-lists">
+const archiveJavascript = {
+    renderError() {
+        const html = `
+            <div class="product-lists">
                 <span>Không có kết quả nào phù hợp😩</span>
-        </div>`;
-        listsBody.innerHTML = DOMPurify.sanitize( html, { RETURN_TRUSTED_TYPE: true }); 
+            </div>`;
+        listsBody.innerHTML = DOMPurify.sanitize(html, { RETURN_TRUSTED_TYPE: true });
     },
 
-    handleEvents: () => 
-    {
-        document.addEventListener('DOMContentLoaded', () => 
-        {
-            btnSelect.addEventListener('click', () => {
-                posters.forEach((element) => {
-                    TypeClass.class('toggle', element, 'select');
-                });
-                
-                TypeClass.class('remove', downloadPoster, 'select');
-            
-                inputCheckboxes.forEach((element) => {
-                    TypeClass.class('toggle', element, 'select');
-                });
-            
-                // identify title action 
-                if (btnSelect.innerHTML === 'Hủy chọn') {
-                    btnSelect.innerHTML = 'Chọn nội dung';
-                } else {
-                    btnSelect.innerHTML = 'Hủy chọn';
-                }
-            });
-    
-            inputCheckboxes.forEach((checkbox) => {
-                checkbox.addEventListener('click', () => {
-                    handleCheckboxClick(checkbox);
-                });
-            });
-            
-            remove.addEventListener('click', () => {
-                handleRemoveButtonClick();
-            });
-    
-            btnFilters.forEach((btn) => {
-                btn.addEventListener('click', () => {
-                    arrayResetClass(btnFilters, 'filter');
-                    TypeClass.class('add', btn, 'filter');
-                })
-            })
-            
-            btnNew.addEventListener('click', () => {
-                const data = {
-                    'class' : 'newpost'
-                };
-                CallAjax.send('POST', data, 'mvc/core/HandleActionInteract.php', function( response ) {
-                    const dataJson = CallAjax.get( response );
-                    try {
-                        renderBody( dataJson );
-                    } 
-                    catch ( err ) {
-                        archiveJavascript.renderError();
-                    }
-                });
-            })
-            
-            btnDate.addEventListener('click', () => {
-                confirmIcon(btnDate);
-                const icon = btnDate.querySelector('i');
-                // If exists, sort oldest, otherwise, sort newest
-                let data = {};
-                if (icon.classList.contains('fa-caret-down')) 
-                {
-                    data = {
-                        'class' : 'firstdate'
-                    };
-                    
-                } else {
-                    data = {
-                        'class' : 'oldestdate'
-                    };
-                }
-
-                CallAjax.send('POST', data, 'mvc/core/HandleActionInteract.php', function(response) {
-                    const dataJson = CallAjax.get( response );
-                    try {
-                        renderBody( dataJson );
-                    } 
-                    catch ( err ) {
-                        archiveJavascript.renderError();
-                    }
-                });
-            });
-    
-            btnCollection.addEventListener('click', () => {
-                const data = {
-                    'class' : 'hascollection'
-                };
-                CallAjax.send('POST', data, 'mvc/core/HandleActionInteract.php', function(response) {
-                    const dataJson = CallAjax.get( response );
-                    console.log( dataJson );
-                    try {
-                        renderBody( dataJson );
-                    } 
-                    catch ( err ) {
-                        archiveJavascript.renderError();
-                    }
-                });
-            });
-            
-            btnLike.addEventListener('click', () => {
-                const data = {
-                    'class' : 'haslike'
-                };
-                CallAjax.send('POST', data, 'mvc/core/HandleActionInteract.php', function(response) {
-                    const dataJson = CallAjax.get( response );
-                    try {
-                        renderBody( dataJson );
-                    } 
-                    catch ( err ) {
-                        archiveJavascript.renderError();
-                    }
-                });
-            });
-            
-            searchArchive.addEventListener('input', Debounces.listen(function (event) {
-                const value = event.target.value;
-                // get data 
-                const data = {
-                    'class' : 'searcharchive',
-                    'keyword' : value
-                };
-                
-                if ( value.trim() !== '' && value.length > 1 )
-                {
-                    CallAjax.send('POST', data, 'mvc/core/HandleActionInteract.php', function(response) {
-                        const dataJson = CallAjax.get( response );
-                        try {
-                            renderBody( dataJson );
-                        } 
-                        catch ( err ) {
-                            archiveJavascript.renderError();
-                        }
-                    });
-                } else {
-                    const data = {
-                        'class' : 'newpost'
-                    };
-    
-                    CallAjax.send('POST', data, 'mvc/core/HandleActionInteract.php', function(response) {
-                        const dataJson = CallAjax.get( response );
-                        try {
-                            renderBody( dataJson );
-                        } 
-                        catch ( err ) {
-                            archiveJavascript.renderError();
-                        }
-                    });
-                }
-            }, 300));
-        })
+    handleEvents() {
+        document.addEventListener('DOMContentLoaded', () => {
+            this.setupSelectButton();
+            this.setupCheckboxes();
+            this.setupRemoveButton();
+            this.setupFilterButtons();
+            this.setupNewButton();
+            this.setupDateButton();
+            this.setupCollectionButton();
+            this.setupLikeButton();
+            this.setupSearchArchive();
+        });
     },
 
-    start: () => {
-        archiveJavascript.handleEvents();
+    setupSelectButton() {
+        btnSelect.addEventListener('click', () => {
+            posters.forEach((element) => {
+                TypeClass.class('toggle', element, 'select');
+            });
+
+            TypeClass.class('remove', downloadPoster, 'select');
+
+            inputCheckboxes.forEach((element) => {
+                TypeClass.class('toggle', element, 'select');
+            });
+
+            btnSelect.innerHTML = btnSelect.innerHTML === 'Hủy chọn' ? 'Chọn nội dung' : 'Hủy chọn';
+        });
+    },
+
+    setupCheckboxes() {
+        inputCheckboxes.forEach((checkbox) => {
+            checkbox.addEventListener('click', () => handleCheckboxClick(checkbox));
+        });
+    },
+
+    setupRemoveButton() {
+        remove.addEventListener('click', handleRemoveButtonClick);
+    },
+
+    setupFilterButtons() {
+        btnFilters.forEach((btn) => {
+            btn.addEventListener('click', () => {
+                arrayResetClass(btnFilters, 'filter');
+                TypeClass.class('add', btn, 'filter');
+            });
+        });
+    },
+
+    setupNewButton() {
+        btnNew.addEventListener('click', () => {
+            this.sendRequest({ class: 'newpost' });
+        });
+    },
+
+    setupDateButton() {
+        btnDate.addEventListener('click', () => {
+            confirmIcon(btnDate);
+            const icon = btnDate.querySelector('i');
+            const data = { class: icon.classList.contains('fa-caret-down') ? 'firstdate' : 'oldestdate' };
+            this.sendRequest(data);
+        });
+    },
+
+    setupCollectionButton() {
+        btnCollection.addEventListener('click', () => {
+            this.sendRequest({ class: 'hascollection' });
+        });
+    },
+
+    setupLikeButton() {
+        btnLike.addEventListener('click', () => {
+            this.sendRequest({ class: 'haslike' });
+        });
+    },
+
+    setupSearchArchive() {
+        searchArchive.addEventListener('input', Debounces.listen((event) => {
+            const value = event.target.value.trim();
+            const data = {
+                class: value.length > 1 ? 'searcharchive' : 'newpost',
+                keyword: value
+            };
+            this.sendRequest(data);
+        }, 300));
+    },
+
+    sendRequest(data) {
+        CallAjax.send('POST', data, 'mvc/core/HandleActionInteract.php', (response) => {
+            const dataJson = CallAjax.get(response, 'off').err_mess;
+            try {
+                renderBody(dataJson);
+            } catch (err) {
+                this.renderError();
+            }
+        });
+    },
+
+    start() {
+        this.handleEvents();
     }
-}
+};
 
 archiveJavascript.start();

@@ -47,40 +47,28 @@ body {
 .post-meta::before {
     content: "";
     position: absolute;
-    top: 30%;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 50%;
+    background: #f5f5f5;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0), #ffffff);
+    z-index: 0;
+}
+
+.post-meta::after {
+    content: "";
+    position: absolute;
+    top: 0%;
     left: 0;
     right: 0;
     bottom: 0;
     background: #f5f5f5;
-    background: -webkit-gradient(linear, left top, left bottom, from(rgba(255,255,255,0)), to(#f6faff));
-    background: -webkit-linear-gradient(top, rgba(255,255,255,0), #f6faff);
-    background: -o-linear-gradient(top, rgba(255,255,255,0), #f6faff);
-    background: linear-gradient(to bottom, rgba(255,255,255,0), #f6faff);
-    background: -ms-linear-gradient(to bottom, rgba(255,255,255,0), #f6faff);
+    background: linear-gradient(to top, rgb(255 255 255 / 71%), #ffffff4a);
     z-index: -1;
 }
 
-.post-meta .post-poster {
-    position: absolute;
-    height: 350px;
-    width: 100%;
-    object-fit: cover;
-    object-position: 0% 23%;
-    filter: blur(0px);
-    -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent);
-    mask-image: linear-gradient(to bottom, black 80%, transparent);
-    z-index: -1;
-}
-
-.post-meta .post-poster-before {
-    position: absolute;
-    -webkit-backdrop-filter: blur(200px);
-    backdrop-filter: blur(200px);
-    background: #ffffff0f;
-    height: 100%;
-    width: 100%;
-    z-index: -1;
-}.wrapper-header {
+.wrapper-header {
     backdrop-filter: unset;
     box-shadow: none;
     -webkit-backdrop-filter: saturate(180%) blur(6px);
@@ -110,8 +98,8 @@ body {
     background: rgba(51, 51, 51, 0.12);
 }
 
-.wrapper-header .header-right .search  .search-click span {
-    color: rgb(3, 3, 3);
+.wrapper-header .header-right span {
+    color: rgb(3, 3, 3) !important;
 }
 
 .header_center #directional li .line {
@@ -123,57 +111,46 @@ body {
     z-index: 1;
     min-height: 300px;
     height: 100%;
+    padding-bottom: 30px;
     overflow: hidden;
-}
-
-.post-meta::before {
-    content: "";
-    position: absolute;
-    top: 30%;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: #f5f5f5;
-    background: -webkit-gradient(linear, left top, left bottom, from(rgba(255,255,255,0)), to(#f6faff));
-    background: -webkit-linear-gradient(top, rgba(255,255,255,0), #f6faff);
-    background: -o-linear-gradient(top, rgba(255,255,255,0), #f6faff);
-    background: linear-gradient(to bottom, rgba(255,255,255,0), #f6faff);
-    background: -ms-linear-gradient(to bottom, rgba(255,255,255,0), #f6faff);
-    z-index: -1;
 }
 
 .post-meta .post-poster {
     position: absolute;
     height: 350px;
     width: 100%;
-    object-fit: cover;
-    object-position: 0% 23%;
-    filter: blur(0px);
-    -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent);
-    mask-image: linear-gradient(to bottom, black 80%, transparent);
     z-index: -1;
 }
 
 .post-meta .post-poster-before {
     position: absolute;
-    -webkit-backdrop-filter: blur(200px);
-    backdrop-filter: blur(200px);
-    background: #ffffff0f;
+    -webkit-backdrop-filter: blur(25px);
+    backdrop-filter: blur(25px);
+    background: url('http://localhost/usego/mvc/views/cpanel/templates/images/background/poster-detail.png');
+    background-size: cover;
+    background-position: top;
+    filter: brightness(85%);
     height: 100%;
     width: 100%;
     z-index: -1;
 }
 
 .post-meta .post-poster-before::before {
-content: "";
+    content: '';
     position: absolute;
-    top: 30%;
     left: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, #ffffff, transparent 100%);
+}
+
+.post-meta .post-poster-before::after {
+    content: '';
+    position: absolute;
     right: 0;
-    bottom: 0;
-    background: #f5f5f5;
-    background: linear-gradient(to bottom, rgb(255 255 255 / 0%) 99%, #f6fafff2);
-    z-index: 2;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to left, #ffffff, transparent 100%);
 }
 
 .post-meta .category-header {
@@ -199,7 +176,7 @@ content: "";
 }
 
 .post-meta .category-header .part-crumbs ul li a {
-    color: #000000 !important;
+    color: #ffffff !important;
     text-shadow: none;
     font-size: 15px !important;
 }
@@ -261,8 +238,9 @@ content: "";
     display: flex;
     align-items: center;
     gap: 7.5px; 
-    background: rgba(255,255,255,0.9);
+    background: rgba(255,255,255,0.9) !important;
     color: #000;
+    box-shadow: none;
     -webkit-border-radius: .08rem;
     line-height: .45rem;
     width: auto;
@@ -271,9 +249,9 @@ content: "";
     font-family: inherit;
     -webkit-backdrop-filter: blur(30px);
     backdrop-filter: blur(30px);
-    padding: 8px 16px;
+    border: 1px solid transparent;
+    padding: 9.5px 17px;
     border-radius: 4px;
-    border: none;
     cursor: pointer;
     transition: all 10ms ease
 }
@@ -329,11 +307,6 @@ content: "";
     font-size: 10px;
     border-radius: 11px 11px 11px 9px;
     color: #eeeeee;
-}
-
-.post-meta .post-tags ul li a:hover {
-    color: var(--white);
-   background: var(--main);
 }
 
 .post-meta .post-tags ul li a:hover .fa-hashtag {
@@ -468,8 +441,8 @@ swiper-slide img {
     gap: 20px;
     height: 100%;
     justify-content: space-between;
-    background: var(--white);
-    padding: 30px 20px; 
+    background: #4590f4;
+    padding: 30px 20px;
     padding-bottom: 0;
 }
 
@@ -708,6 +681,7 @@ swiper-slide img {
     max-height: 4rem;
     line-height: 1.55rem;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     display: box;
     display: -webkit-box;
     -webkit-box-orient: vertical;
@@ -719,6 +693,7 @@ swiper-slide img {
     word-wrap: break-word;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 1;
+    line-clamp: 1;
     color: #292929;
     display: -webkit-box;
     font-size: 16px;
@@ -995,7 +970,7 @@ swiper-slide img {
     padding: 15px;
     border-radius: 12px;
     overflow: auto;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    box-shadow: 0px 0px 1px rgb(0 0 0 / 18%);
     transition: all .1s ease;
 }
 
@@ -1168,15 +1143,16 @@ swiper-slide img {
 }
 
 .show-comments .talk-feedback section .meta .feedback { 
-    color: #595959;
+    color: #191919;
     text-wrap: nowrap;
     background: #f2f3f5;
-    box-shadow: 0px 0.05px 1px #6c6c6c4f;
-    padding: 4px 10px;
+    padding: 5px 15px;
     border-radius: 99px;
-    font-weight: 800;
+    font-weight: 500;
     cursor: pointer;
-    transition: all .1s ease
+    -webkit-text-stroke: 1px #00000024;
+    transition: all .1s ease;
+    user-select: none;
 }
 
 .show-comments .talk-feedback section .meta .feedback:hover {
@@ -1214,17 +1190,7 @@ swiper-slide img {
     }
 }
 
-.post-meta .post-poster-before::before {
-content: "";
-    position: absolute;
-    top: 30%;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: #f5f5f5;
-    background: linear-gradient(to bottom, rgb(255 255 255 / 0%) 99%, #f6fafff2);
-    z-index: 2;
-}
+
 
 .post-meta .category-header {
     margin: 0 70px;
@@ -1258,18 +1224,19 @@ content: "";
     text-align: center;
     color: var(--white);
     border-radius: 16px;
+    text-shadow: -0.1px -0.1px 2px #71717199;
 }
 
 .post-meta .post-title h4 {
     font-size: 32px;
-    padding: 0 50px;
+    padding: 10px 50px;
     font-weight: 400;
-    color: #00000099;
+    color: #ffffff;
 }
 
 .post-meta .post-meta-item {
     display: flex;
-    padding: 25px 20px;
+    padding: 30px 20px;
     justify-content: center;
 }
 
@@ -1278,7 +1245,7 @@ content: "";
     align-items: center;
     gap: 5px;
     font-weight: 400;
-    color: #00000099;
+    color: #ffffff;
     padding: 0 10px;
     font-size: 14px;
 }
@@ -1335,6 +1302,7 @@ content: "";
     font-family: inherit;
     -webkit-backdrop-filter: blur(30px);
     backdrop-filter: blur(30px);
+    border: 1px solid transparent;
     padding: 11.5px 17px;
     border-radius: 4px;
     border: none;
@@ -1348,14 +1316,19 @@ content: "";
 }
 
 .post-meta .post-btns button.show {
-    color: var(--white);
-    background: linear-gradient(to right, rgb(251, 113, 133), rgb(253, 186, 116)) !important;
+    background: rgb(0 0 0 / 8%) !important;
+    border: 1px solid #ffffff14;
+    color: #fff
+}
+
+.post-meta .post-btns button img {
+    width: 21px;
 }
 
 .post-meta .post-btns button.show img {
     color: var(--white);
-    animation: zoomAnimation 0.25s ease-in-out;
-    filter: drop-shadow( 0px 0px 1px #0000004f);
+    animation: zoomAnimation .2s ease-in-out;
+    filter: brightness(110%)
 }
 
 @keyframes zoomAnimation {
@@ -1386,7 +1359,7 @@ content: "";
 
 .post-meta .post-tags ul li a {
     gap: 7.5px;
-    color: #343434;
+    color: #1e1e1e;
     text-transform: capitalize;
     -webkit-border-radius: .06rem;
     -moz-border-radius: .06rem;
@@ -1396,11 +1369,15 @@ content: "";
     backdrop-filter: blur(30px);
     border-radius: 4.5px;
     line-height: 2.3571429em;
-    padding: 3px 16px;
+    padding: 4px 17px;
     font-size: 13px;
     box-sizing: border-box;
     white-space: nowrap;
     transition: all 10ms ease
+}
+
+.post-meta .post-tags ul li a img {
+    width: 19px;
 }
 
 .post-meta .post-tags ul li a i {
@@ -1682,7 +1659,7 @@ swiper-slide img {
 }
 
 .post-containers .post-container-right section {
-    background: #fafafa;
+    background: var(--white);
     padding: 35px 30px;
     border-radius: 15px;
     border: 1px double #dadce03f;
@@ -1692,11 +1669,11 @@ swiper-slide img {
 }
 
 .post-containers .post-container-right section .title-suggest {
-    padding: 8px 16px;
+    padding: 10px 16px;
     margin: 10px 0;
     font-size: 14.5px;
     margin-bottom: 20px;
-    background-color: #f2f3f5;
+    background: linear-gradient(to right, rgb(255 229 63 / 5%), transparent);
     border-radius: 6px;
     margin-right: auto;
 }
@@ -1713,6 +1690,9 @@ swiper-slide img {
 .proposals-posts article img {
     width: 100%;
     border-radius: 15px;
+    padding: 5px;
+    box-sizing: border-box;
+    box-shadow: 0 1px 5px rgb(183 183 183 / 15%);
 }
 
 .proposals-posts article .content {
@@ -1732,8 +1712,18 @@ swiper-slide img {
 }
 
 .post-containers .post-container-right section .page-right-quantity span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
     font-size: 16px;
-    color: #4874ce;
+}
+
+.post-containers .post-container-right section .page-right-quantity span:nth-child(1) {
+    color: #4590f4
+}
+
+.post-containers .post-container-right section .page-right-quantity span:nth-child(2) {
+    color: #b454ee
 }
 
 .post-containers .post-container-right section table tr {
@@ -1866,6 +1856,7 @@ swiper-slide img {
     max-height: 4rem;
     line-height: 1.55rem;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     display: box;
     display: -webkit-box;
     -webkit-box-orient: vertical;
@@ -1877,6 +1868,7 @@ swiper-slide img {
     word-wrap: break-word;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 1;
+    line-clamp: 1;
     color: #292929;
     display: -webkit-box;
     font-size: 16px;
@@ -2096,7 +2088,20 @@ swiper-slide img {
     padding-left: 20px;
     margin-top: 15px;
     border-left: 1.75px solid var(--main);
-    padding-bottom: 35px; 
+    padding-bottom: 35px;
+    transition: all .2s ease-in-out;
+    animation: comment .25s ease-in-out
+}
+
+@keyframes comment {
+    0% {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0px);
+    }
 }
 
 .container-feedbacks.show {
@@ -2285,13 +2290,21 @@ swiper-slide img {
 
 .talk-feedback  .item-main .item-title-wrap h3 {
     display: flex;
+    align-items: center;
+    gap: 5.5px;
 }
 .talk-feedback  .item-main .item-title-wrap h3 span {
     display: flex;
-    align-items: flex-end;
     gap: 7px;
     color: #303030;
     font-size: 14.5px;
+    white-space: nowrap
+}
+
+.talk-feedback  .item-main .item-title-wrap  svg {
+    color: #1b74e4;
+    height: 14px;
+    width: 14px;
 }
 
 .talk-feedback section .item-main .item-entry {
@@ -2391,13 +2404,17 @@ swiper-slide img {
  .talk-feedback section .meta .options .module-comment li {
     white-space: nowrap;
     display: flex; 
-    align-items: center;
+    align-items: flex-end;
     font-size: 14.5px;
     padding: 10px 17px;
     color: #444;
     font-weight: 500;
     transition: all 150ms ease-in-out
 }
+
+ .talk-feedback section .meta .options .module-comment li span {
+    transform: translateY(1px)
+ }
 
  .talk-feedback section .meta .options .module-comment li:hover {
     background-color: #f2f3f5;

@@ -14,6 +14,14 @@ class Convert {
         $this->uploadDir = $uploadDir;
         $this->outputDir = $outputDir;
         $this->fontFile = $fontFile;
+
+        // Ensure the upload and output directories exist
+        if (!is_dir($this->uploadDir)) {
+            mkdir($this->uploadDir, 0777, true);
+        }
+        if (!is_dir($this->outputDir)) {
+            mkdir($this->outputDir, 0777, true);
+        }
     }
 
     public function handleFileUpload() {
@@ -23,82 +31,78 @@ class Convert {
                 $inputFilePath = $file['tmp_name'];
                 $uploadedFilePath = $this->uploadDir . basename($file['name']);
 
-                // Ensure the upload directory exists
-                if (!is_dir($this->uploadDir)) {
-                    mkdir($this->uploadDir, 0777, true);
-                }
-
                 // Move the uploaded file
                 if (move_uploaded_file($inputFilePath, $uploadedFilePath)) {
                     return $this->convertAndProcessFile($uploadedFilePath);
                 } else {
-                    throw new Exception("Failed.");
+                    throw new Exception("failed.");
                 }
             } else {
-                throw new Exception("Upload error: " . $file['error']);
+                throw new Exception("error: " . $file['error']);
             }
         } else {
-            throw new Exception("No file uploaded.");
+            throw new Exception("No file");
         }
     }
 
-    private function convertAndProcessFile($filePath) {
-        $upload = new \ConvertApi\FileUpload($filePath);
+    private function convertAndProcessFile( $pathfile ) {
+        $upload = new \ConvertApi\FileUpload($pathfile);
 
         try {
             $result = ConvertApi::convert('png', ['File' => $upload]);
-            
-            if (!is_dir($this->outputDir)) {
-                mkdir($this->outputDir, 0777, true);
-            }
-
             $savedFiles = $result->saveFiles($this->outputDir);
-
-            foreach ($savedFiles as $filePath) {
-                $this->addTextToImage($filePath);
+            foreach ( $savedFiles as $file ) {
+                $this->addTextToImage($file);
             }
-            $baseNames = array_map('basename', $savedFiles);
-            return ( implode('||', $baseNames) );
+            return [
+                'files' => $pathfile,
+                'images' => implode('||', array_map('basename', $savedFiles))
+            ];
 
         } catch (Exception $e) {
-            echo "Error: " . $e->getMessage();
+            error_log("error: " . $e->getMessage());
+            throw new Exception("error");
         }
     }
 
-    private function addTextToImage($filePath) {
-        $image = imagecreatefrompng($filePath);
+    private function addTextToImage($file) {
+        $image = imagecreatefrompng($file);
     
         if (!$image) {
-            throw new Exception("Failed to create image from file.");
+            throw new Exception("Failed.");
         }
     
         $shadowColor = imagecolorallocate($image, 50, 50, 50); 
         $textColor = imagecolorallocate($image, 255, 255, 255); 
     
         $fontSize = 42;
-        $angle = 0;
-        $text = 'Coppyright© Usego';
+        $text = 'Copyright © Usego';
     
         if (!file_exists($this->fontFile)) {
-            throw new Exception("Font file not found: " . $this->fontFile);
+            throw new Exception("not found: " . $this->fontFile);
         }
+
+        // Calculate text box and position
+        $this->drawText($image, $text, $fontSize, $shadowColor, $textColor);
     
+        imagepng($image, $file);
+        imagedestroy($image);
+    }
+
+    private function drawText($image, $text, $fontSize, $shadowColor, $textColor) {
+        $angle = 0;
+
         $textBox = imagettfbbox($fontSize, $angle, $this->fontFile, $text);
         $textWidth = $textBox[2] - $textBox[0];
-        $textHeight = $textBox[1] - $textBox[7];
-    
         $x = (imagesx($image) - $textWidth) / 2;
         $y = imagesy($image) - 50;
     
-        $x = (int)round($x);
-        $y = (int)round($y);
-    
-        $shadowOffset = 3;
-        imagettftext($image, $fontSize, $angle, $x + $shadowOffset, $y + $shadowOffset, $shadowColor, $this->fontFile, $text);
-    
+        $x = round($x);
+        $y = round($y);
+
+        // Draw shadow
+        imagettftext($image, $fontSize, $angle, $x + 3, $y + 3, $shadowColor, $this->fontFile, $text);
+        // Draw text
         imagettftext($image, $fontSize, $angle, $x, $y, $textColor, $this->fontFile, $text);
-    
-        imagepng($image, $filePath);
-        imagedestroy($image);
     }
 }

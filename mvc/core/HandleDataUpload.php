@@ -13,6 +13,15 @@ class HandleDataUpload extends General {
     private $arrayAllPhotos = [];
 
     public $response, $error;
+
+    public $arrayConvertApi = [
+        'secret_2Twrwqv8Vuzi4qGF',
+        'secret_28LXYwoF7ydFRuHf',
+        'secret_Ta2lieyXcF0ZbXNz',
+        'secret_Ksc49M4bWoQyYuLM',
+        'secret_lDD4vzd0bnPUB5rn',
+    ];
+
     public function __construct()
     {
         $this->access = new General;
@@ -22,12 +31,8 @@ class HandleDataUpload extends General {
     /* Description: When the user uploads a photo, it will 
     query and retrieve only the 3 latest records from the table 'ug_save_old_avatars', */
 
-    public function updateAvatar($inputName, $folder, $typeFile, $changeSize = null, $status = true) 
+    public function updateImages($inputName, $folder, $typeFile, $changeSize = null, $status = true) 
     {
-        // Parameters_1 -> File uploads
-        // parameters_3 -> Folder name used to save names
-        // Parameters_2 -> State whether you want to save old file memories
-
         $this->file = $_FILES[ $inputName ];
         $this->fileName = $this->file['name'];
         $this->fileTmp =  $this->file['tmp_name'];
@@ -63,6 +68,7 @@ class HandleDataUpload extends General {
         {
             $this->oldPhotoSavingActivity( $pathFullImage );
         }
+        return $pathFullImage; 
     }    
 
     private function resizeAndSaveImage( $sourcePath, $destinationPath, $maxWidth, $maxHeight, $quality = 75) 
@@ -91,7 +97,7 @@ class HandleDataUpload extends General {
         }
     
         // Create a new image with calculated dimensions
-        $destinationImage = imagecreatetruecolor($newWidth, $newHeight);
+        $destinationImage = imagecreatetruecolor((int)$newWidth, (int)$newHeight);
         switch ( $sourceType ) {
             case IMAGETYPE_JPEG:
                 $sourceImage = imagecreatefromjpeg($sourcePath);
@@ -182,9 +188,30 @@ class HandleDataUpload extends General {
         $this->updateInfoUser();
     }
 
-    public function insertFilePowerpoint()
+    public function insertFilePowerpoint($auto, $nameFile = null, $images = null)
     {
-        $this->fileSavedImages();
+        $imageString = ""; $fileString = "";
+        if ($auto = 1) {
+            $fileString = $nameFile;
+            $imageString = $images;
+        } else {
+            $fileString = $this->namePowerpoint;
+            $imageString = implode('||', $this->arrayAllPhotos);
+        }
+        $this->data = [
+            'userId' => $this->userId,
+            'title' => $this->title,
+            'tags' => $this->tags,
+            'images' => $imageString,
+            'fileDownload' => $fileString,
+            'createAt' => date('y-m-d H:i:s')
+        ];
+
+        $query = $this->access->MyModelsCrud->insert('ug_power_point', $this->data);
+        if( $query )
+        {
+            $this->response = 'true';
+        }
     }
 
     private function fileUpdateAvatar( $data ) 
@@ -202,8 +229,13 @@ class HandleDataUpload extends General {
 
     private function fileCountAvatar() 
     {
-        return $this->access->MyModelsOther->getRows("SELECT userId FROM ug_save_old_avatars 
-        WHERE userId = $this->userId");
+        return $this->access->MyModelsOther->getRows("
+        SELECT 
+            userId 
+        FROM 
+            ug_save_old_avatars 
+        WHERE 
+            userId = $this->userId");
     }
     // Check the number of avatars in the table
 
@@ -215,31 +247,10 @@ class HandleDataUpload extends General {
             'createAt' => date('y-m-d H:i:s')
         ];
 
-        $this->access->MyModelsCrud->insert('ug_save_old_avatars', $this->data);
+        if ( $this->access->MyModelsCrud->insert('ug_save_old_avatars', $this->data) )
+        $this->response = 'Cập nhật avatar thành công';
     }
     // Saved avatar on table 'ug_save_old_avatars'
-
-    private function fileSavedImages() 
-    {
-        $this->data = [
-            'userId' => $this->userId,
-            'title' => $this->title,
-            'tags' => $this->tags,
-            'images' => implode('||', $this->arrayAllPhotos),
-            'fileDownload' => $this->namePowerpoint,
-            'createAt' => date('y-m-d H:i:s')
-        ];
-
-        $query = $this->access->MyModelsCrud->insert('ug_power_point', $this->data);
-        // After saving the data, retrieve the data
-        if( $query )
-        {
-            $dataNewPost = $this->access->MyModelsCrud->getRaw(" SELECT * FROM ug_power_point 
-            WHERE userId = '$this->userId' ORDER BY id DESC LIMIT 1");
-            echo json_encode( $dataNewPost );
-        }
-    }
-    // Saved avatar on table 'ug_power_point'
 
     private function removeOldAvatar()
     {
@@ -272,7 +283,7 @@ class HandleDataUpload extends General {
 
     public function uploadPowerpoint()
     {
-        if(!empty($_POST['title']) && !empty($_POST['tags']))
+        if ($this->access->attributeEmpty(['title', 'tags'])) 
         {
             $this->title = $_POST['title'];
             $this->tags = $_POST['tags'];
@@ -320,29 +331,101 @@ class HandleDataUpload extends General {
 
     public function uploadImageProof() 
     {
-        if ( $this->access->attributeEmpty( [ 'id' ] ) ) 
-        try {
-            $id = $_POST['id'];
+        if ($this->access->attributeEmpty(['id'])) {
+            try {
+                $id = $_POST['id'];
+                $uploadDir = _WEB_PATH_UPLOADS . 'proof-files/';
+                $outputDir = _WEB_PATH_UPLOADS . 'proof-images/';
+                $fontFile = _WEB_PATH_ROOT . '\views\cpanel\templates\fonts\static\Nunito-Medium.ttf';
+    
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
+                }
+                if (!is_dir($outputDir)) {
+                    mkdir($outputDir, 0777, true);
+                }
 
-            $apiSecret = 'secret_jOj2C98jqIRt8hVU';
-            $uploadDir = _WEB_PATH_UPLOADS . 'proof-files/';
-            $outputDir = _WEB_PATH_UPLOADS . 'proof-images/';
+                $images = null;
+                $success = false;
+    
+                foreach ($this->arrayConvertApi as $apiSecret) {
+                    try {
+                        $fileHandler = new Convert($apiSecret, $uploadDir, $outputDir, $fontFile);
+                        $arrayResults = $fileHandler->handleFileUpload();
+                        $images = $arrayResults['images'];
+                        $files = $arrayResults['files'];
+                        $success = true;
+                        break;
+                    } catch (Exception $e) {
+                        error_log("$apiSecret failed error: " . $e->getMessage());
+                    }
+                }
+                if (!$success) {
+                    throw new Exception("ConvertAPI failed.");
+                }
+    
+                $data = [
+                    'images' => $images,
+                    'files' => $files
+                ];
+                $query = $this->access->MyModelsCrud->update(
+                    "ug_service",
+                    $data,
+                    "id_trade = '$id' AND userId = '$this->userId'"
+                );
+    
+                if ($query) {
+                    $this->response = $images;
+                }
+    
+            } catch (Exception $e) {
+                error_log("Upload failed: " . $e->getMessage());
+                echo "Error: " . $e->getMessage();
+            }
+        }
+    }
+
+    public function automaticUpload()
+    {
+        try {
+            $uploadDir = _WEB_PATH_UPLOADS . 'powerpoint/';
+            $outputDir = _WEB_PATH_UPLOADS . 'powerpoint-images/';
             $fontFile = _WEB_PATH_ROOT . '\views\cpanel\templates\fonts\static\Nunito-Medium.ttf';
 
-            $fileHandler = new Convert($apiSecret, $uploadDir, $outputDir, $fontFile);
-            $images = $fileHandler->handleFileUpload();
-            
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+            if (!is_dir($outputDir)) {
+                mkdir($outputDir, 0777, true);
+            }
+
+            $images = null;
+            $success = false;
+
+            foreach ($this->arrayConvertApi as $apiSecret) {
+                try {
+                    $fileHandler = new Convert($apiSecret, $uploadDir, $outputDir, $fontFile);
+                    $arrayResults = $fileHandler->handleFileUpload();
+                    $images = $arrayResults['images'];
+                    $files = $arrayResults['files'];
+                    $success = true;
+                    break;
+                } catch (Exception $e) {
+                    error_log("$apiSecret failed error: " . $e->getMessage());
+                }
+            }
+            if (!$success) {
+                throw new Exception("ConvertAPI failed.");
+            }
+
             $data = [
                 'images' => $images,
-                // 'file' => 
+                'files' => $files
             ];
-            $query = $this->access->MyModelsCrud->update("ug_service", $data, 
-            "id_trade = '$id' AND userId = '$this->userId'");
-
-            if ( $query )
-            $this->response = $images;
+            $this->response = $data;
 
         } catch (Exception $e) {
+            error_log("Upload failed: " . $e->getMessage());
             echo "Error: " . $e->getMessage();
         }
     }
@@ -359,6 +442,26 @@ class definesUploadAction extends General {
         $this->performDetermination();
     }
 
+    public function identifyActionUpload()
+    {
+        if ($this->access->attributeEmpty(['identify'])) 
+        {
+            $identify = $_POST['identify'];
+            $this->handle->uploadPowerpoint();
+
+            if ( $identify === 'automatic' )
+            {
+                $fileDownload = $_POST['powerpoint'];
+                $images = $_POST['images-uploads'];
+                $this->handle->insertFilePowerpoint(1, $fileDownload, $images);
+            } else {
+                $this->handle->updateImages('powerpoint', 'powerpoint', 'file', null, false);
+                $this->handle->savedAllImagePowerpoint();
+                $this->handle->insertFilePowerpoint(0);
+            }
+        }
+    }
+
     public function performDetermination() 
     {
         if ( $this->access->attributeEmpty( ['class'] ) )
@@ -368,34 +471,32 @@ class definesUploadAction extends General {
             switch ( $this->method )
             {
                 // When entering the authentication code
-                case 'updateavatar':
-                    $this->handle->updateAvatar('avatar', 'avatar', 'image', 300, true); 
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
+                case 'UpdateAvatar':
+                    $this->handle->updateImages('avatar', 'avatar', 'image', 300, true); 
                     break;
 
-                case 'useavatarold':
+                case 'UseAvatarOld':
                     $this->handle->useImageUpdate();
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
                     break;
 
-                case 'editinformation':
+                case 'EditInformation':
                     $this->handle->editInformation();
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
                     break;
 
-                case 'uploadpowerpoint':
-                    $this->handle->uploadPowerpoint();
-                    $this->handle->updateAvatar('powerpoint', 'powerpoint', 'file', null, false);
-                    $this->handle->savedAllImagePowerpoint();
-                    $this->handle->insertFilePowerpoint();
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
+                case 'UploadPowerpoint':
+                    $this->identifyActionUpload();
                     break;
 
-                case 'uploadimageproof':
+                case 'UploadImageProof':
                     $this->handle->uploadImageProof();
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
+                    break;
+
+                case 'AutomaticUpload':
+                    $this->handle->automaticUpload();
                     break;
             }
+
+            $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
         }
     }
 }

@@ -38,7 +38,7 @@
                         } ?>
                         <a href="<?= $authUrl ?>">
                             <img 
-                            src="<?= _TEMPLATE . 'images/icons/google.png' ?>" 
+                            src="<?= _TEMPLATE . 'images/icons/google.png?v=1' ?>" 
                             width="50" 
                             draggable="false">
                             <span> <?php echo $errorMessage; ?> </span>

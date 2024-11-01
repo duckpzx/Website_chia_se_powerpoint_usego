@@ -10,25 +10,14 @@ const btCloseNewFeed = $('.close-new-feed');
 const btAccpectBox = $('#btn-accpect-box');
 const btCancelBox = $('#btn-cancel-box');
 
-const containerDialogBox = $('.dialog-box');
-
-function identifyClassAlertNewFeeds( wrapper, type ) {
-    const identifyAction = ( type === 'yes' ) ? 'add' : 'remove';
-    TypeClass.class(`${ identifyAction }`, wrapper, 'show');
-    TypeClass.class(`${ identifyAction }`, modalOverlay, 'show');
-
-    // Action identify html class no scroll
-    const identifyActionHtml = ( type === 'yes' ) ? 'yes' : 'no';
-    NoScrollHTML.noScroll(`${ identifyActionHtml }`);
-}
+const btnLogoutUsego = $('.logout-usego');
 
 const footerJavascript = {
     handleEvents: () => {   
         document.addEventListener('DOMContentLoaded', () => {
             // New feed alert 
             btNewFeed.onclick = (e) => {
-                e.preventDefault();
-                identifyClassAlertNewFeeds(modalContent, 'yes');
+                AlertUsego.identify('yes');
             }   
 
             // Close new feed alert 
@@ -40,29 +29,22 @@ const footerJavascript = {
 
             // Remove new feed alert 
             btCloseNewFeed.onclick = () => {
-                identifyClassAlertNewFeeds(modalContent, 'no');
+                AlertUsego.identify('no');
             }
-
-            // show quessions Logout 
-            if ( containerDialogBox ) {
-                const btnLogoutUsego = $('.logout-usego');
-
-                btnLogoutUsego.onclick = () => {
-                    identifyClassAlertNewFeeds(containerDialogBox, 'yes');
-                    TypeClass.class('add', modalOverlay, 'accect');
-                    DialogBoxQuestion.dialog('Thực hiện, việc đăng xuất', 'Bạn có chắc chắn?');
-                };
-    
-                // Action logout
-                btAccpectBox.onclick = () => {
-                    window.location.href = '/usego/account/logout';
-                }
-    
-                btCancelBox.onclick = () => {
-                    TypeClass.class('remove', modalOverlay, 'accect');
-                    identifyClassAlertNewFeeds(containerDialogBox, 'no');
-                }
-            }
+            
+            btnLogoutUsego.onclick = () => {
+                cuteAlert({
+                    type: "question",
+                    title: "Xác nhận yêu cầu",
+                    message: "Bạn có chắc muốn đăng xuất",
+                    confirmText: "Xác nhận",
+                    cancelText: "Hủy bỏ"
+                }).then((e)=>{
+                    if (e == "confirm") {
+                        window.location.href = '/usego/account/logout';
+                    } 
+                });
+            };
         });
     },
 

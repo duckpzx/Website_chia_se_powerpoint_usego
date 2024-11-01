@@ -119,7 +119,7 @@ function handlePagination( page ) {
         'class' : 'pagination'
     }
     CallAjax.send('POST', data, 'talk/mvc/core/HandleActionInteract.php', ( response ) => {
-        const dataJson = CallAjax.get( response );
+        const dataJson = CallAjax.get( response, 'off' ).err_mess;
         try {
             addButtonPage();
             renderInterface( dataJson );

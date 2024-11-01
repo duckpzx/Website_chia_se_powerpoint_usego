@@ -147,35 +147,41 @@ function prepareData() {
     addFormData('title', getValueFile(titlePowerpoint.value), 'Tiêu đề, lỗi!');
     formData.append('tags', getTags());
 
-    if (selectPowerpoint[0]) {
-        formData.append('powerpoint', selectPowerpoint[0]);
+    if (identifyAutomatic) {
+        formData.append('powerpoint', selectPowerpoint[0].name);
+        formData.append('images-uploads', arrayImageFiles.join('||'));
     } else {
-        cuteToast({
-            type: "error",
-            title: "Lỗi",
-            message: "File, lỗi!",
-            timer: 3000
-        });
-        return null; 
-    }
-
-    if ( arrayImageFiles ) 
-    {
-        for( const file of arrayImageFiles ) 
-        {
-            formData.append('image-uploads[]', file);
+        if (selectPowerpoint[0]) {
+            formData.append('powerpoint', selectPowerpoint[0]);
+        } else {
+            cuteToast({
+                type: "error",
+                title: "Lỗi",
+                message: "File, lỗi!",
+                timer: 3000
+            });
+            return null; 
         }
-    } else {
-        cuteToast({
-            type: "error",
-            title: "Lỗi",
-            message: "Ảnh, lỗi!",
-            timer: 3000
-        });
-        return null; 
+    
+        if ( arrayImageFiles ) 
+        {
+            for( const file of arrayImageFiles ) 
+            {
+                formData.append('image-uploads[]', file);
+            }
+        } else {
+            cuteToast({
+                type: "error",
+                title: "Lỗi",
+                message: "Ảnh, lỗi!",
+                timer: 3000
+            });
+            return null; 
+        }
     }
 
-    formData.append('class', 'uploadpowerpoint');
+    formData.append('class', 'UploadPowerpoint');
+    formData.append('identify', (identifyAutomatic) ? 'automatic' : 'manual');
     return formData; 
 }
 
@@ -358,7 +364,7 @@ function renderBlog( data ) {
         var alert = '';
     
         if ( item.topic === 'service' ) {
-            alert = ( item.status === 'PD' ) 
+            alert = ( item.status === 'HT' ) 
             ? '<span class="alert success"> Đã hoàn thành </span>' 
             : '<span class="alert error"> Chưa hoàn thành </span>'; 
         } else {
@@ -368,6 +374,14 @@ function renderBlog( data ) {
         const paramId = ( item.topic === 'service' ) 
         ? `/usego/profile/action?id=${ item.id } ` 
         : `/usego/instruct/read?id=${ item.id } `;
+
+        const total = (item.total !== null) 
+        ? `<span class="action" title="Số lượng yêu cầu">${ item.total }</span>`
+        : '';
+
+        const hide = (item.hide === 'false')
+        ?  `<img class="not-display" src="${AlertUsego.template()}images/icons/not-display.png" width="20">`
+        : '';
 
         return (
             result + `
@@ -381,6 +395,8 @@ function renderBlog( data ) {
                         </div>
                     </div>
                 </a>
+                ${ total }
+                ${ hide }
                 <span class="view"> ${ item.view } Lượt xem </span>
             </section>
             `
@@ -392,11 +408,17 @@ function renderBlog( data ) {
 
 // const dataJsonFavourites = [];
 const btnCollectionMenu = $('.btn-collection-menu');
-const btnCollectionAction = $('.btn-collection-action');
+const btnCollectionFeed = $('.btn-collection-feeds');
 
 function handleUrlBrowser( type ) {
     const page = getTabParameterFromURL( 'id' );
-    (type === 'profile') ? history.pushState(null, null, `?id=${ page }`) : history.pushState(null, null, `?id=${ page }&tab=c`);
+    if (type === 'profile') {
+        history.pushState(null, null, `?id=${ page }`)
+    } else if (type === 'favorite') {
+        history.pushState(null, null, `?id=${ page }&tab=c`);
+    } else {
+        history.pushState(null, null, `?id=${ page }&tab=d`);
+    }
 }
 
 function loadNoPostValue() {
@@ -456,9 +478,8 @@ function prepareDataDelete( element ) {
     };
     CallAjax.send('POST', data, 'mvc/core/HandleActionInteract.php', function ( response ) {
         try {
-            console.log(response);
-            const jsonData = CallAjax.get( response );
-            if ( !jsonData.error ) {
+            const dataJson = CallAjax.get( response, 'off' );
+            if ( dataJson.code !== 0 ) {
                 const item = element.closest('.card-product');
                 item.remove();
                 checkEmptyPosted();
@@ -487,9 +508,9 @@ function arrangePost( typeArrange ) {
         };
         CallAjax.send('POST', data, 'mvc/core/HandleActionInteract.php', function (response) {
             try {
-                const jsonData = CallAjax.get( response );
-                renderFavourites( jsonData );
-                handleUrlBrowser( 'collection' );
+                const dataJson = CallAjax.get( response, 'off' ).err_mess;
+                renderFavourites( dataJson );
+                handleUrlBrowser('favorite');
             } 
             catch (err) {
                 loadNoPostValue();
@@ -505,210 +526,207 @@ const btnKindZa = $('.btn-kind-like-za');
 const profilePowerpointJavascript = {
     handleEvents() {        
         document.addEventListener('DOMContentLoaded', () => {
-            titlePowerpoint?.addEventListener('input', Debounces.listen((event) => {
-                const value = event.target.value;
-                // If value other empty
-                if(value !== '') {
-                    titlePowerpoint.style.border = '1.5px solid rgba(22,24,35,.06)';
-                    if($('.upload-wrapper-2 .title .error'))
-                    {
-                        $('.upload-wrapper-2 .title .error').remove();
-                    }
-                } 
-                // If value > 0 remove alert error
-                getValueFile(value, 79, 80);
-            }, 300));
+            this.initializeEventListeners();
+        });
+    },
 
-            // Handle title file upload 
-            titlePowerpoint?.addEventListener('blur', Debounces.listen((event) => {
-                const value = event.target.value;
-                isEmpty(value, titlePowerpoint);
-                TypeClass.class('add', btnUpPowerpoint, 'show');
-            }, 300));
+    initializeEventListeners() {
+        titlePowerpoint?.addEventListener('input', this.debounceInputTitle);
+        titlePowerpoint?.addEventListener('blur', this.debounceBlurTitle);
+        tagsPowerpoint?.addEventListener('input', this.debounceInputTags);
+        tagsPowerpoint?.addEventListener('keydown', this.handleEnterKey);
+        btnCombackUploadTitle?.addEventListener('click', this.handleCombackUpload);
+        btnClPowerpoint?.addEventListener('click', this.handleClearUpload);
+        btnSendPowerpoint?.addEventListener('click', this.handleSendPowerpoint);
+        btnAuthorMenu?.addEventListener('click', this.handleAuthorPosts);
+        this.setupButtonSeeMore();
+        this.setupCloseSelected();
+        this.setupDeleteSelectedPosts();
+        btnUpPowerpoint?.addEventListener('click', this.handleUploadPowerpoint);
+        listSuggests?.addEventListener('click', this.handleSuggestsClick);
+        listTagsPowerpoints?.addEventListener('click', this.handleTagsPowerpointsClick);
+        btnCollectionMenu?.addEventListener('click', this.handleGetFavourites);
+        btnCollectionFeed?.addEventListener('click', this.handleGetBlogData);
+        this.checkAndLoadFavourites();
+        this.checkAndLoadsFeeds();
+        btnKindAz?.addEventListener('click', () => arrangePost('kinaz'));
+        btnKindZa?.addEventListener('click', () => {
+        });
+    },
 
-            // Handle hastag file upload
-            tagsPowerpoint?.addEventListener('input', Debounces.listen((event) => {
-                const value = event.target.value;
-                getValueFile(value, 59, 60);
-            
-            }, 300));
+    debounceInputTitle: Debounces.listen((event) => {
+        const value = event.target.value;
+        if (value !== '') {
+            titlePowerpoint.style.border = '1.5px solid rgba(22,24,35,.06)';
+        }
+        getValueFile(value, 79, 80);
+    }, 300),
 
-            // When pressing the enter button
-            tagsPowerpoint?.addEventListener('keydown', (event) => {
-                // Check if the pressed key is Enter (key code 13)
-                if (event.keyCode === 13) {
-                    const value = event.target.value;
-                    storesKeywordInput(value);
-                    if(value.trim() !== '') {
-                        const render = `
-                        <li>${ value } <i class="fa-solid fa-xmark" data-type="history"></i></li>`;
-                        TypeClass.class('add', listTagsPowerpoints, 'show');
-                        listTagsPowerpoints.insertAdjacentHTML('beforeend', DOMPurify.sanitize(render, { RETURN_TRUSTED_TYPE: true }));
-                        tagsPowerpoint.value = '';
-                    }   
-                }
-            });
+    debounceBlurTitle: Debounces.listen((event) => {
+        const value = event.target.value;
+        isEmpty(value, titlePowerpoint);
+        TypeClass.class('add', btnUpPowerpoint, 'show');
+    }, 300),
 
-            // Come back event upload file 
-            btnCombackUploadTitle?.addEventListener('click', () => {
-                showInputTextFile('remove');
-            });
-            
-            // Delete event upload file 
-            if ($('#btn-cl-powerpoint'))
-            {
-                btnClPowerpoint.onclick = () => {
-                    showInputTextFile('remove');
-                    titlePowerpoint.value = '';
-                    tagsPowerpoint.value = '';
-                    const tags = listTagsPowerpoints.querySelectorAll('li');
-                    tags.forEach(tag => {
-                        tag.remove();
-                        arrayTagsPowerpoint.length = 0;
-                    });
-                }  
+    debounceInputTags: Debounces.listen((event) => {
+        const value = event.target.value;
+        getValueFile(value, 59, 60);
+    }, 300),
+
+    handleEnterKey: (event) => {
+        if (event.keyCode === 13) {
+            const value = event.target.value;
+            storesKeywordInput(value);
+            if (value.trim() !== '') {
+                const render = `
+                    <li>${value} <i class="fa-solid fa-xmark" data-type="history"></i></li>`;
+                TypeClass.class('add', listTagsPowerpoints, 'show');
+                listTagsPowerpoints.insertAdjacentHTML('beforeend', DOMPurify.sanitize(render, { RETURN_TRUSTED_TYPE: true }));
+                tagsPowerpoint.value = '';
             }
+        }
+    },
 
-            // Upload file 
-            btnSendPowerpoint?.addEventListener('click', (e) => {
-                const powerpoint = selectPowerpoint[0];
-                const images = arrayImageFiles;
-                if(powerpoint && images.length > 0) {
-                    showInputTextFile('add');
-                    displayKeywords();
-                }
-            });
+    handleCombackUpload: () => {
+        showInputTextFile('remove');
+    },
 
-            // Show all posteds 
-            btnAuthorMenu?.addEventListener('click', () => {
-                const idValue  = getTabParameterFromURL( 'id' );
-                const data = {
-                    'id': idValue,
-                    'class': 'authorposts'
-                };
-                CallAjax.send('POST', data, 'mvc/core/HandleActionInteract.php', function( response ) {
-                    const jsonData = CallAjax.get( response );
-                    try {
-                        renderFavourites( jsonData );
-                        handleUrlBrowser( 'profile' );
-                    }
-                    catch ( err ) {
-                        loadNoPostValue();   
-                    }
-                });
-            });
+    handleClearUpload: () => {
+        showInputTextFile('remove');
+        titlePowerpoint.value = '';
+        tagsPowerpoint.value = '';
+        const tags = listTagsPowerpoints.querySelectorAll('li');
+        tags.forEach(tag => {
+            tag.remove();
+        });
+        arrayTagsPowerpoint.length = 0;
+    },
 
-            // See more description
-            btnSeeMores?.forEach((element) => {
-                element.addEventListener('click', () => {
-                    hanldeButtonSeeMore( element );
-                })
-            });
-            
-            // Close selected
-            btnRemoveExs?.forEach((element) => {
-                element.addEventListener('click', () => {
-                    resetExtended( $$('.detail-extended'), 'show' );
-                })
-            });
+    handleSendPowerpoint: (e) => {
+        const powerpoint = selectPowerpoint[0];
+        const images = arrayImageFiles;
+        if (powerpoint && images.length > 0) {
+            showInputTextFile('add');
+            displayKeywords();
+        }
+    },
 
-            // Delete selected posts
-            btnDeleteExs?.forEach((element) => {
-                element.addEventListener('click', () => {
-                    prepareDataDelete( element );
-                })
-            });
+    handleAuthorPosts: () => {
+        const idValue = getTabParameterFromURL('id');
+        const data = { 'id': idValue, 'class': 'authorposts' };
+        CallAjax.send('POST', data, 'mvc/core/HandleActionInteract.php', (response) => {
+            const dataJson = CallAjax.get(response, 'off').err_mess;
+            try {
+                renderFavourites(dataJson);
+                handleUrlBrowser('profile');
+            } catch (err) {
+                loadNoPostValue();   
+            }
+        });
+    },
 
-            // Upload file 
-            btnUpPowerpoint?.addEventListener('click', () => {
-                isLoading('add');
-                const formData = prepareData();
-                if (formData !== null) {
-                    callAjaxWithFormData('POST', formData, 'mvc/core/HandleDataUpload.php', function (response) {
-                        // Reset data
+    setupButtonSeeMore() {
+        btnSeeMores?.forEach((element) => {
+            element.addEventListener('click', () => {
+                hanldeButtonSeeMore(element);
+            });
+        });
+    },
+
+    setupCloseSelected() {
+        btnRemoveExs?.forEach((element) => {
+            element.addEventListener('click', () => {
+                resetExtended($$('.detail-extended'), 'show');
+            });
+        });
+    },
+
+    setupDeleteSelectedPosts() {
+        btnDeleteExs?.forEach((element) => {
+            element.addEventListener('click', () => {
+                prepareDataDelete(element);
+            });
+        });
+    },
+
+    handleUploadPowerpoint: () => {
+        isLoading('add');
+        const formData = prepareData();
+        if (formData !== null) {
+            callAjaxWithFormData('POST', formData, 'mvc/core/HandleDataUpload.php', (response) => {
+                const dataJson = CallAjax.get(response, 'off').err_mess;
+                try {
+                    if (dataJson) {
                         resetDataUpload();
                         isLoading('remove');
-            
-                        // Show post upload
                         btnAuthorMenu.click();
-                        
-                        // Alert Insert success
                         cuteToast({
                             type: "success",
                             title: "Thành công",
                             message: "Bài đăng đã sẵn sàng.",
                             timer: 3000
-                        }) 
-                    });
+                        });
+                    }
+                } catch (err) {
+                    console.log(err);
                 }
             });
+        }
+    },
 
-            // Handle suggests 
-            listSuggests?.addEventListener('click', (event) => {
-                const clickedElement = event.target.closest('li');
-                handleSuggestsClick(clickedElement);
-            });
-            
-            // Handle tags
-            listTagsPowerpoints?.addEventListener('click', (event) => {
-                const clickedRemoveIcon = event.target.closest('li i');
-                handleTagsPowerpointsClick(clickedRemoveIcon);
-            });
+    handleSuggestsClick: (event) => {
+        const clickedElement = event.target.closest('li');
+        handleSuggestsClick(clickedElement);
+    },
 
-            // Favourites click 
-            btnCollectionMenu?.addEventListener('click', () => {
-                const idValue  = getTabParameterFromURL( 'id' );
-                const data = {
-                    'id': idValue,
-                    'class': 'getdatafavourite'
-                };
-                CallAjax.send('POST', data, 'mvc/core/HandleActionInteract.php', function (response) {
-                    const jsonData = CallAjax.get( response );
-                    try {
-                        renderFavourites( jsonData );
-                        handleUrlBrowser( 'collection' );
-                    } 
-                    catch (err) {
-                        loadNoPostValue();
-                    }
-                });
-            });
+    handleTagsPowerpointsClick: (event) => {
+        const clickedRemoveIcon = event.target.closest('li i');
+        handleTagsPowerpointsClick(clickedRemoveIcon);
+    },
 
-            // Action blog
-            btnCollectionAction?.addEventListener('click', () => {
-                const idValue  = getTabParameterFromURL( 'id' );
-                const data = {
-                    'id': idValue,
-                    'class': 'getdataaction'
-                };
-                CallAjax.send('POST', data, 'mvc/core/HandleActionInteract.php', function (response) {
-                    const jsonData = CallAjax.get( response );
-                    try {
-                        renderBlog( jsonData );
-                    } 
-                    catch (err) {
-                        loadNoPostValue();
-                    }
-                });
-            });
-
-            // Load data favourites if on param 'tab'
-            myParam?.btnCollectionMenu.click();  
-
-            // Arrange increase post 
-            btnKindAz?.addEventListener('click', () => {
-                arrangePost(' kinaz ')
-            });
-
-            btnKindZa?.addEventListener('click', () => {
-                
-            })
+    handleGetFavourites: () => {
+        const idValue = getTabParameterFromURL('id');
+        const data = { 'id': idValue, 'class': 'getdatafavourite' };
+        CallAjax.send('POST', data, 'mvc/core/HandleActionInteract.php', (response) => {
+            const dataJson = CallAjax.get(response, 'off').err_mess;
+            try {
+                renderFavourites(dataJson);
+                handleUrlBrowser('favorite');
+            } catch (err) {
+                loadNoPostValue();
+            }
         });
     },
 
-    start: () => {
-        profilePowerpointJavascript.handleEvents();
+    handleGetBlogData: () => {
+        const idValue = getTabParameterFromURL('id');
+        const data = { 'id': idValue, 'class': 'GetDataAction' };
+        CallAjax.send('POST', data, 'mvc/core/HandleActionInteract.php', (response) => {
+            const dataJson = CallAjax.get(response, 'off').err_mess;
+            try {
+                renderBlog(dataJson);
+                handleUrlBrowser('feeds');
+            } catch (err) {
+                loadNoPostValue();
+            }
+        });
+    },
+
+    checkAndLoadFavourites() {
+        if (myParam === 'c') {
+            btnCollectionMenu.click();  
+        }
+    },
+
+    checkAndLoadsFeeds() {
+        if (myParam === 'd') {
+            btnCollectionFeed.click();  
+        }
+    },
+
+    start() {
+        this.handleEvents();
     }
-}
+};
 
 profilePowerpointJavascript.start();

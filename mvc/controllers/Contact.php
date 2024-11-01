@@ -1,34 +1,31 @@
 <?php 
-    require_once ( dirname( __DIR__ ) ) . "/core/Shared/General.php";
-    
-    class Contact extends General {
-        
-        private $access;
+require_once(dirname(__DIR__)) . "/core/Shared/General.php";
 
-        public function __construct()
-        {
-            $this->access = new General;
-        }
+class Contact extends General {
+    private $access;
 
-        public function index()
-        {
-            $this->contact();
-        }
-
-        public function contact()
-        {   
-            $this->view('masterlayout', [
-                'page' => 'users/contact',
-                'resources' => [
-                    'title' => 'Usego - Chủ đề đặc biệt và thiết kế xuất sắc',
-                    'css' => 'contact',
-                    'js' => 'contact',
-                ],
-                // Database SQL Server ( My SQL ) - Data
-                'dataSql' => [
-         
-                ], 
-            ]);
-        }
+    public function __construct() {
+        $this->access = new General;
     }
-?>
+
+    public function index() {
+        $this->renderContactPage();
+    }
+
+    private function renderContactPage() {   
+        $this->view('masterlayout', [
+            'page' => 'users/contact',
+            'resources' => $this->getResources(),
+            'dataSql' => [] 
+        ]);
+    }
+
+    private function getResources() {
+        return [
+            'title' => 'Usego - Chủ đề đặc biệt và thiết kế xuất sắc',
+            'css' => 'contact',
+            'js' => 'contact',
+        ];
+    }
+}
+

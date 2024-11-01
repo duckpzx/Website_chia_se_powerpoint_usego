@@ -1,19 +1,18 @@
 <main>
     <div class="block"></div>
     <div class="container">
-        <div class="main-container"
-            style="background: url('<?= _TEMPLATE . 'images/background/background_contacts.png' ?>');">
+        <div class="main-container">
             <div class="about-contact">
                 <div class="top-contact">
                     <div class="image">
                         <img 
-                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHLGMMdm9HYQwzWsH9jRbfZyjMC_CdrY-tTg8RP6cnzlpH4IXWgitiY_mZ7q8geZkAo7U&usqp=CAU" width="30">
+                        src="http://localhost/usego/mvc/views/cpanel/templates/images/uploads/avatar/usego_21948b93-81f4-429c-812e-8681b7b506ce60c320ce34d2859924fd85cce3b72ff55c1b55f1.jpg" width="30">
                     </div>
                     <div class="content">
                         <small>
-                            <b>Xin Chào, Bạn</b> 
-                            <p>~
-                            Bạn có thể phản hồi về công việc để đàm phán với tôi.</p>
+                            <p>👉 Có thể bạn không biết ?</p> 
+                            <p>
+                            Bạn có thể liên hệ hoặc phản hồi, về công việc, để đàm phán với tôi và giải quyết.</p>
                         </small>
                     </div>
                 </div>
@@ -39,7 +38,7 @@
                             width="20">
                         </button>
                         <img 
-                        src="https://assets-static.invideo.io/images/origin/Frame_1214132850_5e7b694771.png" width="100">
+                        src="<?= _TEMPLATE . 'images/background/qrcode_.png' ?>" width="100">
                     </div>
                 </div>
                 <div class="bottom-contact">
@@ -140,7 +139,7 @@
                 </span>
             </div>
             <div class="sub-title">
-                <h2>Chúng tôi ưu tiên cung cấp các dịch vụ tốt nhất tới người dùng</h2>
+                <h2>Ưu tiên cung cấp các dịch vụ tốt nhất tới người dùng</h2>
             </div>
             <div class="sub-text">
                 <p>
@@ -155,17 +154,17 @@
                     <div class="title">
                         <h3>12</h3> 
                         <small> năm</small>
-                        <i class="fa-solid fa-arrow-trend-up"></i>
+                        <img src="<?= _TEMPLATE . 'images/icons/trend.png?' ?>" width="15">
                     </div>
                     <span class="des-text">
-                        Uy tín, chuyên nghiệp được đảm bảo
+                        Uy tín, chuyên nghiệp
                     </span>
                 </li>
                 <li>
                     <div class="title">
                         <h3>2000</h3> 
                         <small> cá nhân </small>
-                        <i class="fa-solid fa-arrow-trend-up"></i>
+                        <img src="<?= _TEMPLATE . 'images/icons/trend.png?' ?>" width="15">
                     </div>
                     <span class="des-text">
                         Dự án doanh nghiệp phục vụ
@@ -175,7 +174,7 @@
                     <div class="title">
                         <h3>10</h3> 
                         <small> Nghìn</small>
-                        <i class="fa-solid fa-arrow-trend-up"></i>
+                        <img src="<?= _TEMPLATE . 'images/icons/trend.png?' ?>" width="15">
                     </div>
                     <span class="des-text">
                         Mẫu thiết kế khác nhau 
@@ -185,7 +184,7 @@
                     <div class="title">
                         <h3>29</h3> 
                         <small> hợp tác</small>
-                        <i class="fa-solid fa-arrow-trend-up"></i>
+                        <img src="<?= _TEMPLATE . 'images/icons/trend.png?' ?>" width="15">
                     </div>
                     <span class="des-text">
                         Quảng cáo với hãng khác
@@ -196,14 +195,11 @@
         <div class="about-services">
             <div class="wrapper-services">
                 <section>
-                    <img class="item-poster"
-                        src="<?= _TEMPLATE . 'images/background/service-bg.png' ?>" width="100">
                     <div class="item-ico">
-                        <i class="fa-brands fa-adversal"></i>
+                        <img src="<?= _TEMPLATE . 'images/icons/bus-icon1.svg' ?>" width="45">
                     </div>
                     <div class="item-title">
                         <h3>Liên hệ quảng cáo
-                        <i class='bx bxs-hot'></i>
                         </h3>
                     </div>
                     <div class="item-tags">
@@ -235,10 +231,8 @@
                     </div>
                 </section>
                 <section>
-                    <img class="item-poster"
-                        src="<?= _TEMPLATE . 'images/background/service-bg.png' ?>" width="100">
                     <div class="item-ico">
-                        <i class="fa-regular fa-object-group"></i>
+                        <img src="<?= _TEMPLATE . 'images/icons/bus-icon2.svg' ?>" width="45">
                     </div>
                     <div class="item-title">
                         <h3>Dịch vụ thiết kế
@@ -273,10 +267,8 @@
                     </div>
                 </section>
                 <section>
-                    <img class="item-poster"
-                        src="<?= _TEMPLATE . 'images/background/service-bg.png' ?>" width="100">
                     <div class="item-ico">
-                        <i class="fa-solid fa-chalkboard"></i>
+                        <img src="<?= _TEMPLATE . 'images/icons/bus-icon3.svg' ?>" width="45">
                     </div>
                     <div class="item-title">
                         <h3>Nâng cao trình độ
@@ -311,10 +303,8 @@
                     </div>
                 </section>
                 <section>
-                    <img class="item-poster"
-                        src="<?= _TEMPLATE . 'images/background/service-bg.png' ?>" width="100">
                     <div class="item-ico">
-                        <i class="fa-solid fa-tablet-screen-button"></i>
+                        <img src="<?= _TEMPLATE . 'images/icons/bus-icon4.svg' ?>" width="45">
                     </div>
                     <div class="item-title">
                         <h3>Xem xét sản phẩm
@@ -349,10 +339,8 @@
                     </div>
                 </section>
                 <section>
-                    <img class="item-poster"
-                        src="<?= _TEMPLATE . 'images/background/service-bg.png' ?>" width="100">
                     <div class="item-ico">
-                        <i class="fa-regular fa-bell"></i>
+                       <img src="<?= _TEMPLATE . 'images/icons/bus-icon5.svg' ?>" width="45">
                     </div>
                     <div class="item-title">
                         <h3>Thông báo mới nhất
@@ -387,10 +375,8 @@
                     </div>
                 </section>
                 <section>
-                    <img class="item-poster"
-                        src="<?= _TEMPLATE . 'images/background/service-bg.png' ?>" width="100">
                     <div class="item-ico">
-                        <i class="fa-solid fa-hand-holding-droplet"></i>
+                        <img src="<?= _TEMPLATE . 'images/icons/bus-icon6.svg' ?>" width="45">
                     </div>
                     <div class="item-title">
                         <h3>Tạo công việc
@@ -437,7 +423,9 @@
                     <article>
                         <section>
                             <div class="item-ico">
-                                <i class="fa-solid fa-bag-shopping"></i>
+                                <img 
+                                src="<?= _TEMPLATE . 'images/icons/source_material_icon_1.svg' ?>" 
+                                width="30">
                             </div>
                             <div class="item-des">
                                 <p>Tạo cơ hội việc làm cho sinh viên</p>
@@ -446,7 +434,9 @@
                         </section>
                         <section>
                             <div class="item-ico">
-                                <i class="fa-solid fa-swatchbook"></i>
+                                <img 
+                                src="<?= _TEMPLATE . 'images/icons/source_material_icon_2.svg' ?>" 
+                                width="30">
                             </div>
                             <div class="item-des">
                                 <p>Hướng dẫn giải quyết tốt trong kỳ thi</p>
@@ -457,7 +447,9 @@
                     <article>
                         <section>
                             <div class="item-ico">
-                                <i class="fa-solid fa-users"></i>
+                                <img 
+                                src="<?= _TEMPLATE . 'images/icons/source_material_icon_3.svg' ?>" 
+                                width="30">
                             </div>
                             <div class="item-des">
                                 <p>Cơ sở đào tạo tốt cho học viên</p>
@@ -466,7 +458,9 @@
                         </section>
                         <section>
                             <div class="item-ico">
-                                <i class="fa-solid fa-panorama"></i>
+                                <img 
+                                src="<?= _TEMPLATE . 'images/icons/source_material_icon_4.svg' ?>" 
+                                width="30">
                             </div>
                             <div class="item-des">
                                 <p>Triển lãm trực tuyến các bài thuyết trình</p>
@@ -479,115 +473,21 @@
             <div class="section-right">
                 <div class="title">
                     <h3>
-                        Tham gia Cộng đồng
+                        Tham gia cộng đồng
                     </h3>
                 </div>
                 <div class="wrap-flex">
                     <div class="flex-item">
                         <span>
-                            Fanpages <small class="cl-blue"><i class="fa-solid fa-pager"></i> Usego</small>
+                            Fanpages <small class="cl-blue">Usego</small>
                         </span>
                         <a href="">
                             <img 
-                            src="https://glints.com/id/lowongan/wp-content/uploads/2021/06/fanpage5.jpg" width="100%">
+                            src="https://cdn-kvweb.kiotviet.vn/kiotviet-website/wp-content/uploads/2020/09/11103247/ban-hnag-fanpage.png" width="100%">
                         </a>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="section-content section-content-blue">   
-            <article class="wrapper-thumb">     
-                <div class="slogan">
-                    <span>Tối ưu hóa tầm nhìn của trang</span>
-                </div>
-                <div class="title">
-                    <h2>Vẻ đẹp trưởng thành vượt qua thế hệ</h2>
-                    <small>Chỉ với vẻ đẹp vị tha tột cùng, chúng ta mới có cơ hội vượt qua những người cùng thời.</small>
-                </div>
-                <section>
-                    <div class="item-thumb">
-                        <div class="poster">
-                            <img 
-                            src="<?= _TEMPLATE . 'images/icons/corporate-culture-icon-1.png' ?>" 
-                            width="70">
-                        </div>
-                        <div class="des">
-                            <p>Vẻ đẹp của tạo hóa</p>
-                            <small>Giúp mọi người bắt đầu và làm chủ vẻ đẹp của tạo hóa</small>
-                        </div>
-                    </div>
-                    <div class="item-thumb">
-                        <div class="poster">
-                            <img 
-                            src="<?= _TEMPLATE . 'images/icons/corporate-culture-icon-2.png' ?>" 
-                            width="70">
-                        </div>
-                        <div class="des">
-                            <p>vẻ đẹp của sự thành công</p>
-                            <small>Đạt được vẻ đẹp danh vọng cho người dùng</small>
-                        </div>
-                    </div>
-                    <div class="item-thumb">
-                        <div class="poster">
-                            <img 
-                            src="<?= _TEMPLATE . 'images/icons/corporate-culture-icon-3.png' ?>" 
-                            width="70">
-                        </div>
-                        <div class="des">
-                            <p>Vẻ đẹp của sự tăng trưởng</p>
-                            <small>Đẩy nhanh tốc độ phát triển thương hiệu khách hàng trong ngành làm đẹp</small>
-                        </div>
-                    </div>
-                </section>
-                <img class="background"
-                    src="<?= _TEMPLATE . 'images/background/culture-bg.png' ?>" width="50%"> 
-            </article>
-        </div>
-        <div class="section-content section-content-c2">   
-            <section>
-                <div class="left">
-                    <div class="slogan">
-                        <span>Tối ưu hóa sứ mệnh </span>
-                    </div>
-                    <div class="title">
-                        <span>
-                        Nghĩ về lợi ích của người dùng 
-                        </span>
-                    </div>
-                    <div class="des">
-                        <span>
-                        Sự đồng cảm trong Usego là một hành động tốt
-                        cụ thể nhằm giúp người dùng và khách hàng đạt được 
-                        mức tăng trưởng gấp đôi về thời gian và công việc
-                        </span>
-                    </div>
-                </div>
-                <img 
-                    src="<?= _TEMPLATE . 'images/icons/corporate-culture-icon-4.png' ?>" 
-                    width="70">
-            </section>
-            <section>
-                <div class="left">
-                    <div class="slogan">
-                        <span>Khái niệm vận hành tối ưu</span>
-                    </div>
-                    <div class="title">
-                        <span>
-                        Nội dung là vua, sản phẩm là vàng
-                        </span>
-                    </div>
-                    <div class="des">
-                        <span>
-                        Chúng tôi làm việc với vẻ đẹp, tạo ra nội dung 
-                        thiết thực và hiệu quả xoay quanh file thuyết trình
-                        và trau chuốt trải nghiệm nâng cấp sản phẩm.
-                        </span>
-                    </div>
-                </div>
-                <img 
-                    src="<?= _TEMPLATE . 'images/icons/corporate-culture-icon-5.png' ?>" 
-                    width="70">
-            </section>
         </div>
     </div>
 </main>

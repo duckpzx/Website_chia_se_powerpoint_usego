@@ -17,7 +17,9 @@ function renderInterface( data, type, container, location ) {
             <i class="fa-solid fa-ellipsis"></i>
             <ul class="module-comment module-buttons">
                 <li class="remove" ${dataType}="${(type === 'comment' ? data.id_cmt : data.id)}">
-                    <span><i class="fa-regular fa-trash-can"></i> Xóa bình luận</span>
+                    <span>
+                        ❌ Xóa bình luận
+                    </span>
                 </li>
             </ul>
         </div>
@@ -145,25 +147,23 @@ function prepareDataSend( type, value, idCmt ) {
     };
 
     CallAjax.send('POST', data, 'mvc/core/HandleActionInteract.php', ( response ) => {
-        const dataJson = CallAjax.get( response );
+        const dataJson = CallAjax.get( response, 'off' ).err_mess;
         try {
             const jsonSend = {
                 'info' : dataJson
             };
             const id = dataJson[0].id;
-
             if ( id ) {
                 // Comment respond 
                 const idCmt = dataJson[0].id_cmt;
                 const index = getElementContainingRespond( idCmt );
 
-                $$('.feedback')[ index ].innerHTML = DOMPurify.sanitize('<span>Xem bình luận khác</span>', {RETURN_TRUSTED_TYPE: true});
+                $$('.feedback')[ index ].innerHTML = '<span>Xem bình luận khác</span>'
                 renderInterface( jsonSend.info[0], 'respond', $$('.container-feedbacks')[ index ], 'beforeend');
             } else {
                 // Comment main 
                 renderInterface( jsonSend.info[0], 'comment', showComments, 'afterbegin');
             }
-            
             resetValueTextarea();
             ResetClasses.lists( bSends, 'active' );
 
@@ -180,202 +180,175 @@ function prepareDataSend( type, value, idCmt ) {
     });
 }
 
-function handleB_SendClick( event ) {
+function handleB_SendClick(event) {
     event.preventDefault();
-    event.stopPropagation(); 
-    const element = event.currentTarget;
+    event.stopPropagation();
 
-    const containerBoxChat = element.closest('.wrapper-comment, .container-feedbacks');
+    const containerBoxChat = event.currentTarget.closest('.wrapper-comment, .container-feedbacks');
     if (!containerBoxChat) return;
 
     const textarea = containerBoxChat.querySelector('textarea');
     if (!textarea) return;
 
     const textareaValue = textarea.value.trim();
-
     const idComment = containerBoxChat.getAttribute('data-id_cmt');
     const actionType = containerBoxChat.classList.contains('wrapper-comment') ? 'comment' : 'respond';
 
-    prepareDataSend( actionType, textareaValue, idComment );
+    prepareDataSend(actionType, textareaValue, idComment);
 }
 
 // Remove content 
-function removeCommentInterface( type, idneedRemove ) {
-    const selector = ( type === 0 ) ? '.remove[data-id_cmt]' : '.remove[data-id]';
-    const buttons = $$( selector );
+function removeCommentInterface(type, idToRemove) {
+    const selector = type === 0 ? '.remove[data-id_cmt]' : '.remove[data-id]';
+    const buttons = $$(selector);
 
-    buttons.forEach(( button ) => {
-        const id = GetDataElement.get( button, ( type === 0 ) ? 'data-id_cmt' : 'data-id' );
-        if ( id == idneedRemove ) {
-            const wrapper = button.closest(( type === 0 ) ? '.item-wrap' : '.talk-ask' );
+    buttons.forEach((button) => {
+        const id = GetDataElement.get(button, type === 0 ? 'data-id_cmt' : 'data-id');
+        if (id == idToRemove) {
+            const wrapper = button.closest(type === 0 ? '.item-wrap' : '.talk-ask');
             wrapper.remove();
-        } 
+        }
     });
 }
 
 const removes = $$('.remove');
 
-function removeComment( button ) {
+function removeComment(button) {
     button.onclick = () => {
         const idCmt = button.getAttribute('data-id_cmt');
         const id = button.getAttribute('data-id');
-        let data = {};
+        const data = {
+            class: 'removecomment',
+            ...(idCmt ? { id_cmt: idCmt } : { id })
+        };
 
-        if ( idCmt || id ) {
-            data = {
-                ...( idCmt ? { 'id_cmt': idCmt } : { 'id': id }),
-                'class': 'removecomment'
-            };
-        }
-
-        CallAjax.send( 'POST', data, 'mvc/core/HandleActionInteract.php', ( response ) => {
-            const jsonResponse = CallAjax.get( response );
-            try {             
-                if ( jsonResponse.id_cmt ) {
-                    removeCommentInterface(0, jsonResponse.id_cmt);
+        CallAjax.send('POST', data, 'mvc/core/HandleActionInteract.php', (response) => {
+            const dataJson = CallAjax.get(response, 'off').err_mess;
+            try {
+                if (dataJson.id_cmt) {
+                    removeCommentInterface(0, dataJson.id_cmt);
                 } else {
-                    removeCommentInterface(1, jsonResponse.id);
+                    removeCommentInterface(1, dataJson.id);
                 }
-            } catch ( err ) { 
+            } catch (err) {
                 cuteToast({
                     type: "error",
                     title: "Lỗi",
                     message: "Thất bại, thử lại sau",
                     timer: 2500
                 });
-             }
+            }
         });
     };
 }
 
-// Remove comment 
-
-function handleFeedbackClick( event ) {
-    event.stopPropagation(); 
-    let element = event.currentTarget;
-    let wrapper = element.closest('.general-settings').querySelector('.container-feedbacks');
+// Feedback click handler
+function handleFeedbackClick(event) {
+    event.stopPropagation();
+    const wrapper = event.currentTarget.closest('.general-settings').querySelector('.container-feedbacks');
     TypeClass.class('toggle', wrapper, 'show');
 }
 
-function handleOptionsClick( event ) {
-    event.stopPropagation(); 
+// Options click handler
+function handleOptionsClick(event) {
+    event.stopPropagation();
     const moduleComments = $$('.module-comment');
     const element = event.currentTarget;
-
     const moduleComment = element.querySelector('.module-comment');
-    if ( !moduleComment.classList.contains('show') ) {
-        ResetClasses.lists( moduleComments, 'show' );
-        TypeClass.class('add', moduleComment, 'show');
-    } 
 
-    // Close 
-    const closeListener = ( event ) => {
-        const isModuleCommentClicked = event.target.closest('.module-comment');
-        if (!isModuleCommentClicked) {
-            ResetClasses.lists( moduleComments, 'show' );
-            document.removeEventListener('click', closeListener); 
+    if (!moduleComment.classList.contains('show')) {
+        ResetClasses.lists(moduleComments, 'show');
+        TypeClass.class('add', moduleComment, 'show');
+    }
+
+    // Close listener
+    document.onclick = (closeEvent) => {
+        if (!closeEvent.target.closest('.module-comment')) {
+            ResetClasses.lists(moduleComments, 'show');
+            document.onclick = null; 
         }
     };
-
-    document.onclick = closeListener;
 }
 
-function autoHeight( event ) {
-    const element = event.currentTarget;
-    const containerBoxChat = element.closest('.wrapper-comment, .container-feedbacks');
+// Auto-height for textarea
+function autoHeight(event) {
+    const textarea = event.currentTarget;
+    const containerBoxChat = textarea.closest('.wrapper-comment, .container-feedbacks');
     const bSend = containerBoxChat.querySelector('.b-send');
-    const value = event.target.value;
+    const value = textarea.value;
 
     resizeBoxComment();
-    toggleActiveState( value, bSend );
+    toggleActiveState(value, bSend);
 
     function resizeBoxComment() {
-        element.style.height = 'auto';
-        element.style.height = (element.scrollHeight) + 'px';
+        textarea.style.height = 'auto';
+        textarea.style.height = `${textarea.scrollHeight}px`;
     }
 
-    function toggleActiveState( value, button ) {
-        let identifyAction = ( value.trim() !== '' ) ? 'add' : 'remove';
-        TypeClass.class(`${ identifyAction }`, button, 'active');
-        button.disabled = ( identifyAction === 'add' ) ? false : true;
+    function toggleActiveState(value, button) {
+        const action = value.trim() !== '' ? 'add' : 'remove';
+        TypeClass.class(action, button, 'active');
+        button.disabled = action === 'remove';
     }
 
-    element.onclick = resizeBoxComment;
-
-    element.onblur = () => {
-        if ( element.value.trim() === '' ) {
-            element.style.height = '30px';
+    textarea.onblur = () => {
+        if (textarea.value.trim() === '') {
+            textarea.style.height = '30px';
         }
     };
 }
 
-// Conect comment 
-var conn = new WebSocket('ws://localhost:8080');
+function initializeWebSocket(url) {
+    const conn = new WebSocket(url);
+
+    conn.onopen = () => {
+        console.log('%cWebSocket connection opened', 'color: rgb(19, 222, 185);');
+    };
+    conn.onmessage = (event) => {
+        const jsonSend = JSON.parse(event.data);
+        handleWebSocketMessage(jsonSend);
+    };
+    conn.onclose = () => {
+        console.log('%cWebSocket connection closed', 'color: rgb(250, 137, 107);');
+    };
+    conn.onerror = (error) => {
+        console.error('%cWebSocket error:', 'color: rgb(250, 137, 107);', error);
+    };
+
+    return conn;
+}
+
+
+function handleWebSocketMessage(jsonSend) {
+    const id = jsonSend.info[0].id;
+    const container = id ? $$('.container-feedbacks') : showComments;
+
+    if (id) {
+        const idCmt = jsonSend.info[0].id_cmt;
+        const index = getElementContainingRespond(idCmt);
+        $$('.feedback')[index].innerHTML = DOMPurify.sanitize('<span>Xem bình luận khác</span>', { RETURN_TRUSTED_TYPE: true });
+        renderInterface(jsonSend.info[0], 'respond', container[index], 'beforeend');
+    } else {
+        renderInterface(jsonSend.info[0], 'comment', container, 'afterbegin');
+    }
+}
 
 const commentJavascript = {
     handleEvents: () => {
         document.addEventListener('DOMContentLoaded', () => {
-             // Bt seemore comment 
-            feedbacks.forEach(( bt ) => {
-                bt.onclick = handleFeedbackClick
-            });
-
-            // Auto height textare 
-            boxChats.forEach(( chat ) => {
-                chat.oninput = autoHeight;
-            });
-
-            // Setting show options 
-            options.forEach(( bt ) => {
-                bt.onclick = handleOptionsClick;
-            });
-
-            // Send comment 
-            bSends.forEach(( bt ) => {
-                bt.onclick = handleB_SendClick;
-            });
-
-            // Remove comment 
-            removes.forEach(( button ) => {
-                removeComment( button );
-            });
-
-            // Chat realtime 
-            try {
-                // Listen data realtime
-                conn.onopen = ( event ) => {
-                    conn.onmessage = ( event ) => {
-                        const value = event.data;
-                        // Get data from server socket 
-                        const jsonSend = JSON.parse( value );
-
-                        // inspect the object 
-                        const id = jsonSend.info[0].id;
-                        if ( id ) {
-                            const idCmt = jsonSend.info[0].id_cmt;
-                            const index = getElementContainingRespond( idCmt );
-                            $$( '.feedback')[index].innerHTML = DOMPurify.sanitize('<span>Xem bình luận khác</span>', {RETURN_TRUSTED_TYPE: true} );
-                            renderInterface( jsonSend.info[0], 'respond', $$('.container-feedbacks')[index], 'beforeend' );
-                        } else {
-                            renderInterface( jsonSend.info[0], 'comment', showComments, 'afterbegin' );
-                        }
-                    };
-                };    
-            }
-            catch ( err ) { 
-                cuteToast({
-                    type: "error",
-                    title: "Lỗi",
-                    message: 'Không thể bình luận lúc này.',
-                    timer: 2500
-                });
-            };
+            // Gán các sự kiện cho các phần tử
+            feedbacks.forEach(bt => bt.onclick = handleFeedbackClick);
+            boxChats.forEach(chat => chat.oninput = autoHeight);
+            options.forEach(bt => bt.onclick = handleOptionsClick);
+            bSends.forEach(bt => bt.onclick = handleB_SendClick);
+            removes.forEach(button => removeComment(button));
         });
     },
 
     start: () => {
         commentJavascript.handleEvents();
     }
-}
+};
 
 commentJavascript.start();
+var conn = initializeWebSocket('ws://localhost:8080');

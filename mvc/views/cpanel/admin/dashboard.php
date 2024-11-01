@@ -11,6 +11,13 @@
             'svg' => '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-app-window" width="1.3rem" height="1.3rem" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M6 8h.01"></path><path d="M9 8h.01"></path></svg>'
         ],
         [
+            'param' => 'requesttrade',
+            'name' => 'Yêu cầu giao dịch',
+            'icon' => '',
+            'svg' => '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-package" width="1.3rem" height="1.3rem" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><polyline points="12 3 20 7.5 20 16.5 12 21 4 16.5 4 7.5 12 3"></polyline><line x1="12" y1="12" x2="20" y2="7.5"></line><line x1="12" y1="12" x2="12" y2="21"></line><line x1="12" y1="12" x2="4" y2="7.5"></line><line x1="16" y1="5.25" x2="8" y2="9.75"></line></svg>'
+        ],
+
+        [
             'title' => 'app',
             'param' => 'powerpoint',
             'name' => 'File thuyết trình',
@@ -26,7 +33,6 @@
             'name' => 'Yêu cầu dịch vụ',
             'icon' => '',
             'select' => [
-                'requesttrade' => 'Yêu cầu giao dịch',
                 'fileservice' => 'File dịch vụ',
                 'photoservice' => 'Ảnh File dịch vụ'
             ],

@@ -7,12 +7,12 @@
                 placeholder="Tìm kiếm..." 
                 name="search-keyword" 
                 required=""
-                value="<?php if(!empty( $_GET['q'] )) echo $_GET['q']; ?>">
+                value="<?= $_GET['q'] ?? '' ?>">
             </div>
         </div>
-        <div class="group-wrapper group-filter">
-            <div class="group-title">
-                <div class="group-selector">
+        <div class="group-wrapper group-filter hidden">
+            <div class="group-title" >
+                <div class="group-selector" >
                     <section>
                         <button class="powerpoint filter">Powerpoint</button>
                     </section>

@@ -8,28 +8,17 @@ define('HD_Contact', 'contact');
 define('HD_Admin', 'admin');
 
 class Active {
-    public $page = 'home';
-    public $arrayPage, $pageController;
+    private $page = 'home';
+    private $pageController;
 
-    public function __construct()
-    {
-        if (!empty($_GET['url'])) 
-        {
-            $this->pageController = trim($_GET['url'], '/');
-            $this->arrayPage = $this->pageController;
-        } else 
-        {
-            $this->arrayPage = $this->page;
-        }
-        $this->setActive();
+    public function __construct() {
+        $this->pageController = !empty($_GET['url']) ? trim($_GET['url'], '/') : $this->page;
     }
 
-    public function setActive() 
-    {
-        $arrayPathPage = explode('/', $this->arrayPage);
+    public function setActive() {
+        $arrayPathPage = explode('/', $this->pageController);
         return $arrayPathPage[0];
-    }   
+    }
 }
 
 $active = new Active();
-?>

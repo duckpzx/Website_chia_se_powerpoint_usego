@@ -4,158 +4,69 @@
 
     $arrayCrumbs = $getActionParams->urlProcess();
 
-    if(!empty( $dataSql['allPosts'])) :
-    $allPosts = $dataSql['allPosts'];
-    endif;
+    $dataKeys = ['allPosts', 'topPost', 'serviceUnfinished'];
+    
+    foreach ($dataKeys as $key) {
+        if (!empty($dataSql[$key])) {
+            ${$key} = Compact::compactData($dataSql, $key);
+        }
+    }
 ?>
 <main>
     <div class="container">
         <div class="block"></div>
     </div>
     <div class="archive-app">
-        <div class="archive-header" style="background: url('<?= _TEMPLATE . 'images/background/bg-4-1.png' ?>')">
+        <div class="archive-header" style="background: url('<?= _TEMPLATE . 'images/background/MTYwNDYzMzMzNDYzNiMgNDIjcG5n.png' ?>')">
             <section>
-                <div class="partition">
-                    <li class="show-params">
-                        <a href="/usego/" class="title">
-                            Trang chủ
-                            <i class="fa-solid fa-angle-right"></i>
-                        </a>
-                    </li>
-                    <?php $totalCrumbs = count($arrayCrumbs); ?>
-                    <?php foreach( $arrayCrumbs as $key => $crumb ): ?>
-                        <?php if ( $key < $totalCrumbs - 1 ): ?>
-                            <li class="show-params">
-                                <a href="/usego/<?= $crumb ?>" class="title">
-                                    <?= $crumb ?>
-                                    <i class="fa-solid fa-angle-right"></i>
-                                </a>
-                            </li>
-                        <?php else: ?>
-                            <li class="show-params">
-                                <a href="#" class="title param">
-                                    <?= $crumb ?>    
-                                </a>
-                            </li>
-                        <?php endif; ?>
-                    <?php endforeach; ?>
+                <div class="main">
+                    <i>
+                        <img src="<?= _TEMPLATE . 'images/icons/cartoon-astronaut.png' ?>">
+                    </i>
                 </div>
-                <div class="content">
-                    <h1> Tổng hợp bài viết nổi bật </h1>
-                    <span class="quatity-topic">76</span>
-                </div>
-                <div class="footer">
-                    <span>
-                    Luôn có những bài viết về tiêu chuẩn hướng dẫn và tổng hợp kinh nghiệm, hãy đến và tìm hiểu những hướng dẫn kỹ lưỡng dành cho bạn.
-                    </span>
-                </div>
-                <div class="create-post">
-                    <a href="/usego/instruct/newpost">
-                        <i class="fa-solid fa-plus"></i>
-                    </a>
-                    <span>
-                    Viết bài viết mới của riêng bạn
-                    </span>
+                <div class="bottom">
+                    <div class="snow"></div>
                 </div>
             </section>
-            <article>
-                <div class="part-list-title">
-                    <div class="item">
-                        <div class="left yellow">
-                            <i class="fa-solid fa-pager"></i>
-                        </div>
-                        <div class="right">
-                            <h3> Doanh nghiệp </h3>
-                            <small> 18 bài viết </small>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="left navy">
-                            <i class="fa-regular fa-folder-open"></i>
-                        </div>
-                        <div class="right">
-                            <h3> Tài liệu tự học </h3>
-                            <small> 18 bài viết </small>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="left green">
-                            <i class="fa-solid fa-school"></i>
-                        </div>
-                        <div class="right">
-                            <h3> Học tập </h3>
-                            <small> 18 bài viết </small>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="left grey">
-                            <i class="fa-solid fa-gamepad"></i>
-                        </div>
-                        <div class="right">
-                            <h3> Giải trí điện tử </h3>
-                            <small> 18 bài viết </small>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="left orange">
-                            <i class="fa-solid fa-tv"></i>
-                        </div>
-                        <div class="right">
-                            <h3> Bài viết khác </h3>
-                            <small> 18 bài viết </small>
-                        </div>
-                    </div>
-                </div>
-            </article>
-        </div>
-        <div class="archive-tags">
-        <?php if ( !empty( $allPosts ) ) : ?>
-            <div class="title">
-                <p>Danh mục</p>
-            </div>
-            <ul class="list-tags">
-                <li>
-                    <a href="#">
-                        <span>Tổng hợp</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#">
-                        <span>Tin mới</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#">
-                        <span>Bài viết</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#">
-                        <span>Dịch vụ</span>
-                    </a>
-                </li>
-            </ul>
-        <?php endif; ?>
         </div>
         <div class="archive-content">
+            <?php if ( !empty( $serviceUnfinished ) ) : ?>
+                <div class="archive-part">
+                    <section class="hot-title">
+                        <a href="/usego/instruct/newpost" title="Truy cập tạo bài viết mới">
+                            <img src="<?= _TEMPLATE . 'images/icons/new-posts.png'?>">
+                            <span>Tạo mới</span>
+                        </a>
+                        <a href="/usego/profile/?id=7&tab=d" title="Truy cập quản lý bài viết">
+                            <img src="<?= _TEMPLATE . 'images/icons/new-feed.png'?>">
+                            <span>Bài đăng</span>
+                        </a>
+                        <span class="text">👇 Một số các bài viết bạn có thể quan tâm </span>
+                    </section>
+                    <section>
+                        <ul>
+                            <?php foreach ( $serviceUnfinished as $item ) : ?>
+                                <li>
+                                    <a href="/usego/instruct/read?id=<?= $item['id'] ?? '' ?>">
+                                        <img src="<?= _TEMPLATE . 'images/uploads/avatar/' . $item['avatar'] ?>" width="30">   
+                                        <span><?= $item['title'] ?? '' ?></span> 
+                                    </a>
+                                </li>
+                            <?php endforeach; ?> 
+                        </ul>
+                    </section>
+                </div>
+            <?php endif; ?>
             <div class="archive-lists">
                 <?php if ( !empty( $allPosts ) ) : ?>
                     <?php foreach ( $allPosts as $item ) : ?>
                     <section>
+                        <a href="/usego/instruct/read?id=<?= $item['id'] ?>">
                         <div class="preview">
-                            <a href="/usego/instruct/read?id=<?= $item['id'] ?>">
-                            <?php 
-                            $picture = "";
-                            if ( !empty( $item['hot'] ) ) {
-                                $picture = 'np-hot.png';
-                            } else {
-                                $picture = ( $item['topic'] === "post" ) ? "np-post.png" : "np-service.png";
-                            }
-                            ?>
                             <img 
-                                src="<?= _TEMPLATE . 'images/icons/' . $picture ?>">
+                                src="<?= _TEMPLATE . 'images/uploads/posts/' . showInfo::analysis2Character($item['images'])[0] ?>"
+                                onerror="this.src='<?= _TEMPLATE . 'images/icons/not-image.png'; ?>'">
                             <?php ?>
-                            </a>
                             <div class="view">
                                 <span>
                                 <i class="fa-regular fa-eye"></i>    
@@ -164,16 +75,8 @@
                                     <?php endif; ?>
                                 </span>
                             </div>
-                            <?php if( !empty( $item['topic'] ) && $item['topic'] !== "post" ) : ?>
-                                <?php if( !empty( $item['status'] ) ) : ?>
-                                <div class="term-i">
-                                    <span title="">
-                                        <?= $item['status'] ?>
-                                    </span>
-                                </div>
-                                <?php endif; ?>
-                            <?php endif; ?>
                         </div>
+                        </a>
                         <div class="content">
                             <div class="title">
                                 <span>
@@ -182,16 +85,61 @@
                                     <?php endif; ?>
                                 </span>
                             </div>
+                            <div class="topic">
+                                <?php if (!empty( $item['topic'] )) : ?>
+                                    <span class="<?= $item['topic'] ?? '' ?>">
+                                        <?php 
+                                            switch( $item['topic'] ) 
+                                            { 
+                                                case 'service':
+                                                    echo 'Dịch vụ';
+                                                    break;
+                                                case 'post':
+                                                    echo 'Bài viết';
+                                                    break;
+                                                default:
+                                                    echo 'Không xác định';
+                                                    break;
+                                            }?>
+                                    </span>
+                                <?php endif; ?>
+                                <?php if( !empty( $item['topic'] ) && $item['topic'] !== "post" ) : ?>
+                                    <?php 
+                                        switch( $item['status'] ) 
+                                        { 
+                                            case 'PD':
+                                                echo '<span class="blue">Phê duyệt</span>';
+                                                break;
+                                            case 'XN':
+                                                echo '<span class="yellow">Xác nhận</span>';
+                                                break;
+                                            case 'HT':
+                                                echo '<span class="green">Hoàn thành</span>';
+                                                break;
+                                            case 'TB':
+                                                echo '<span class="red">Thất bại</span>';
+                                                break;
+                                            default:
+                                                echo '<span class="red">Chờ đợi</span>';
+                                                break;
+                                        }?>
+                                <?php endif; ?>
+                            </div>
                             <div class="interplay">
-                                <span>
-                                    <i class="fa-regular fa-clock"></i>
-                                    <?php if (!empty( $item['createAt'] )) : ?>
-                                        <?php showInfo::dateDiffInMinutes( $item['createAt'] ) ?>
-                                    <?php endif; ?>
-                                </span>
-                                <a href="/usego/instruct/read?id=<?= $item['id'] ?>" class="btn-zt-post-detai">
-                                    <span>Xem chủ đề</span>
-                                </a>
+                                <div class="info">
+                                    <a href="/usego/profile/?id=<?= $item['userId'] ?? null ?>">
+                                        <img class="avatar" 
+                                            src="<?= _TEMPLATE . 'images/uploads/avatar/' . $item['avatar'] ?>" width="25">
+                                        <?= showInfo::setFullName( $item, 'no_key' ) ?? _no_data ?> 
+                                    </a>
+                                </div>
+                                <div>
+                                    <span>
+                                        <?php if (!empty( $item['createAt'] )) : ?>
+                                            <?= showInfo::dateDiffInMinutes( $item['createAt'] ) ?>
+                                        <?php endif; ?>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </section>
@@ -217,9 +165,6 @@
             <?php endif; ?>
         </div>
         <div class="archive-tags archive-rank">
-            <div class="title">
-                <p>Danh sách xếp hạng</p>
-            </div>
             <section>
                 <div class="left">
                     <div class="nth nth-1">
@@ -243,182 +188,48 @@
                 </div>
                 <div class="right">
                     <!-- 1 -->
-                    <a href="#">
-                        <article>
-                            <div class="rank">
-                                <img 
-                                src="<?= _TEMPLATE . 'images/icons/st1.png' ?>" width="30">
-                            </div>
-                            <div class="content">
-                                <div class="image">
-                                    <img 
-                                    src="https://image.uisdc.com/wp-content/uploads/2023/12/Food-photography-20231218-01.jpg" width="130">
-                                </div>
-                                <div class="wrapper">
-                                    <div class="titler">
-                                        <span>
-                                        Hướng dẫn ý tưởng thiết kế! Thiết kế luôn trống rỗng, làm thế nào để giải quyết nhanh chóng?
-                                        </span>
+                    <?php if ( !empty( $topPost ) ) : ?>
+                        <?php $index = 1; foreach ( $topPost as $item ) : ?>
+
+                            <a href="/usego/instruct/read?id=<?= $item['id'] ?? null ?>">
+                                <article>
+                                    <div class="rank">
+                                        <img 
+                                        src="<?= _TEMPLATE . 'images/icons/' . $index++ . '.png' ?>" width="30">
                                     </div>
-                                    <div class="infomation">
-                                        <div class="link">
-                                            <a href="#">
-                                                <span>Các hướng dẫn khác</span>
-                                            </a>
-                                            <a href="#">
-                                                <span>Tony San San</span>
-                                            </a>
+                                    <div class="content">
+                                        <div class="image">
+                                            <img 
+                                            src="<?= _TEMPLATE . 'images/uploads/post/' . showInfo::analysis2Character( $item['images'] )[0] ?>" width="130">
                                         </div>
-                                        <div class="view">
-                                            <span>9,6k <p>người xem</p></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </article>
-                    </a>
-                    <!-- 2 -->
-                    <a href="#">
-                    <article>
-                        <div class="rank">
-                            <img 
-                            src="<?= _TEMPLATE . 'images/icons/st2.png' ?>" width="30">
-                        </div>
-                        <div class="wrapper">
-                            <div class="content">
-                                <div class="image">
-                                    <img 
-                                    src="https://image.uisdc.com/wp-content/uploads/2023/12/Food-photography-20231218-01.jpg" width="130">
-                                </div>
-                                <div class="wrapper">
-                                    <div class="titler">
-                                        <span>
-                                        Hướng dẫn ý tưởng thiết kế! Thiết kế luôn trống rỗng, làm thế nào để giải quyết nhanh chóng?
-                                        </span>
-                                    </div>
-                                    <div class="infomation">
-                                        <div class="link">
-                                            <a href="#">
-                                                <span>Các hướng dẫn khác</span>
-                                            </a>
-                                            <a href="#">
-                                                <span>Tony San San</span>
-                                            </a>
-                                        </div>
-                                        <div class="view">
-                                            <span>9,6k <p>người xem</p></span>
+                                        <div class="wrapper">
+                                            <div class="titler">
+                                                <span>
+                                                    <?= $item['title'] ?? null ?>
+                                                </span>
+                                            </div>
+                                            <div class="infomation">
+                                                <div class="link">
+                                                    <a href="#">
+                                                        <span>Các hướng dẫn khác</span>
+                                                    </a>
+                                                    <a href="#">
+                                                        <span>
+                                                            <?= showInfo::setFullName($topPost, ($index - 2)); ?> 
+                                                        </span>
+                                                    </a>
+                                                </div>
+                                                <div class="view">
+                                                    <span><?= showInfo::formatCoin($item['view'] ?? 0 ) ?><p>người xem</p></span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                    </article>
-                    </a>
-                    <!-- 3 -->
-                    <a href="#">
-                    <article>
-                        <div class="rank">
-                            <img 
-                            src="<?= _TEMPLATE . 'images/icons/st3.png' ?>" width="30">
-                        </div>
-                        <div class="content">
-                            <div class="image">
-                                <img 
-                                src="https://image.uisdc.com/wp-content/uploads/2023/12/Food-photography-20231218-01.jpg" width="130">
-                            </div>
-                            <div class="wrapper">
-                                    <div class="titler">
-                                        <span>
-                                        Hướng dẫn ý tưởng thiết kế! Thiết kế luôn trống rỗng, làm thế nào để giải quyết nhanh chóng?
-                                        </span>
-                                    </div>
-                                    <div class="infomation">
-                                        <div class="link">
-                                            <a href="#">
-                                                <span>Các hướng dẫn khác</span>
-                                            </a>
-                                            <a href="#">
-                                                <span>Tony San San</span>
-                                            </a>
-                                        </div>
-                                        <div class="view">
-                                            <span>9,6k <p>người xem</p></span>
-                                        </div>
-                                    </div>
-                                </div>
-                        </div>
-                    </article>
-                    </a>
-                    <!-- 4 -->
-                    <a href="#">
-                    <article>
-                        <div class="rank">
-                            <img 
-                            src="<?= _TEMPLATE . 'images/icons/st45.png' ?>" width="30">
-                        </div>
-                        <div class="content">
-                            <div class="image">
-                                <img 
-                                src="https://images.uiiiuiii.com/wp-content/uploads/2023/11/sd-231116-pefa-01.jpg" width="130">
-                            </div>
-                            <div class="wrapper">
-                                    <div class="titler">
-                                        <span>
-                                        Hướng dẫn ý tưởng thiết kế! Thiết kế luôn trống rỗng, làm thế nào để giải quyết nhanh chóng?
-                                        </span>
-                                    </div>
-                                    <div class="infomation">
-                                        <div class="link">
-                                            <a href="#">
-                                                <span>Các hướng dẫn khác</span>
-                                            </a>
-                                            <a href="#">
-                                                <span>Tony San San</span>
-                                            </a>
-                                        </div>
-                                        <div class="view">
-                                            <span>9,6k <p>người xem</p></span>
-                                        </div>
-                                    </div>
-                                </div>
-                        </div>
-                    </article>
-                    </a>
-                    <!-- 5 -->
-                    <a href="#">
-                    <article>
-                        <div class="rank">
-                            <img 
-                            src="<?= _TEMPLATE . 'images/icons/st45.png' ?>" width="30">
-                        </div>
-                        <div class="content">
-                            <div class="image">
-                                <img 
-                                src="https://images.uiiiuiii.com/wp-content/uploads/2023/11/sd-231116-pefa-01.jpg" width="130">
-                            </div>
-                            <div class="wrapper">
-                                <div class="titler">
-                                    <span>
-                                    Hướng dẫn ý tưởng thiết kế! Thiết kế luôn trống rỗng, làm thế nào để giải quyết nhanh chóng?
-                                    </span>
-                                </div>
-                                <div class="infomation">
-                                    <div class="link">
-                                        <a href="#">
-                                            <span>Các hướng dẫn khác</span>
-                                        </a>
-                                        <a href="#">
-                                            <span>Tony San San</span>
-                                        </a>
-                                    </div>
-                                    <div class="view">
-                                        <span>9,6k <p>người xem</p></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </article>
-                    </a>
+                                </article>
+                            </a>
+
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </div>
             </section>
         </div>

@@ -19,10 +19,23 @@ body {
 }
 
 .container {
+  position: relative;
   height: 100%;
   width: 100%;
   background-size: 100% !important;
   padding-bottom: 5px;
+  padding-top: 48px;
+}
+
+.container::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0;
+    width: 100%;
+    height: 100%;
+    background: url('http://localhost/usego/mvc/views/cpanel/templates/images/background/introduction_bg.png');
+    background-size: 100%;
+    filter: blur(1px)
 }
 
 .wrapper-header .header-right .search  .search-click {
@@ -31,8 +44,8 @@ body {
     color: var(--black);
 }
 
-.wrapper-header .header-right .search  .search-click span {
-    color: var(--black);
+.wrapper-header .header-right span {
+  color: rgb(3, 3, 3) !important;
 }
 
 .header_center #directional li .line {
@@ -46,7 +59,7 @@ body {
     flex-direction: column;
     gap: 40px;
     margin: 50px;
-    margin-top: 90px;
+    z-index: 2;
 }
 
 .container-action .group-title {
@@ -54,18 +67,47 @@ body {
 }
 
 .container-action .group-title .content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.container-action .group-title .content .title {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.container-action .group-title .content .checkbox {
+  height: 20px;
+  width: 20px;
+  background: url('http://localhost/usego/mvc/views/cpanel/templates/images/icons/checked.png');
+  background-size: cover !important;
+  border-radius: 2px;
+  background-repeat: no-repeat !important;
+  cursor: pointer;
+  z-index: 2;
+  transition: all .1s ease
+}
+
+.container-action .group-title .content .checkbox.active {
+  background: url('http://localhost/usego/mvc/views/cpanel/templates/images/icons/check.png');
 }
 
 .container-action .group-title .content h3 {
   font-size: 24px;
+  font-weight: 500;
+  text-transform: capitalize;
+  backdrop-filter: blur(5px);
+  color: rgb(42 42 42);
+  letter-spacing: 0.1px;
+  -webkit-text-stroke: 1px #0000004d;
 }
 
 .container-action .group-title .content .infomation {
   display: flex;
-  gap: 20px;
+  gap: 15px;
+  z-index: 1
 }
 
 .container-action .group-title .content .infomation span {
@@ -73,8 +115,7 @@ body {
   align-items: center;
   gap: 7.5px;
   padding: 10px 15px;
-  border-radius: 5px;
-  border: 1px solid #e5e5e5
+  border-radius: 4px;
 }
 
 #btn-qr {
@@ -90,6 +131,7 @@ body {
   border: 1px var(--main) solid;
   color: var(--main);
   background: rgba(255, 140, 52, 0.1);
+  backdrop-filter: blur(15px);
 }
 
 .container-action .group-filter {
@@ -104,12 +146,13 @@ body {
 }
 
 .container-action .group-filter .control span {
-  padding: 10px 15px;
-  border-radius: 5px 0 0 5px;
-  border-left: 1px solid #e5e5e5;
-  border-top: 1px solid #e5e5e5;
-  border-bottom: 1px solid #e5e5e5;
-  font-weight: 600
+  padding: 11.5px 20px;
+  border-radius: 4px 0 0 4px;
+  border: 1px solid rgb(214 214 214 / 22%);
+  border-right: none;
+  font-weight: 500;
+  background: hsla(0,0%,100%,.9);
+  backdrop-filter: blur(10px);
 }
 
 .container-action .group-filter .control:nth-child(1) {
@@ -127,8 +170,21 @@ body {
   padding-left: 15px;
   font-size: 15px;
   outline: none;
-  border: 1px solid #e5e5e5;
-  border-radius: 0 5px 5px 0;
+  background: hsla(0,0%,100%,.9);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgb(214 214 214 / 22%);
+  border-radius: 0 4px 4px 0;
+  z-index: 1;
+}
+
+.container-action .group-filter select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  position: relative;
+  background-repeat: no-repeat;
+  background-image: url(data:image/svg+xml;charset=UTF-8;base64,PHN2ZyB3aWR0aD0nMTInIGhlaWdodD0nNycgZmlsbD0nbm9uZScgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJz48cGF0aCBmaWxsLXJ1bGU9J2V2ZW5vZGQnIGNsaXAtcnVsZT0nZXZlbm9kZCcgZD0nTTIuNTMxLjQyN2ExIDEgMCAwIDAtMS40MTQgMS40MTRMNS40MyA2LjE1M2wuMDIuMDIxYS45OTcuOTk3IDAgMCAwIDEuNDM1LS4wMmw0LjMxMi00LjMxM0ExIDEgMCAwIDAgOS43ODIuNDI3TDYuMTU3IDQuMDUyIDIuNTMuNDI3WicgZmlsbD0nIzI2MTc1MScvPjwvc3ZnPg==);
+  background-position: right 13px center;
 }
 
 .container-action .group-action table {
@@ -136,56 +192,74 @@ body {
 }
 
 .container-action .group-action table th {
-  text-align: center;
-  color: #373737
+  font-weight: 500;
 }
-
 
 .container-action .group-alert section {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 10px 15px;
-  border: 1px #ff60002f solid;
-  color: var(--main);
-  border-radius: 5px;
+  border: 1px solid rgb(233 186 103 / 22%);
+  background-color: #fef7db;
+  box-shadow: 0 0 1px rgb(255 174 31 / 4%);
+  backdrop-filter: blur(15px);
+  color: rgb(255, 174, 31);
+  border-radius: 4px;
   margin-bottom: 25px;
-  background: rgba(255, 140, 52, 0.1);
 }
 
 #table-header {
-  border-radius: 6px;
-  background: #f6f6f6;
-  padding: 10px; 
-  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  padding: 11px; 
+  border: 1px solid rgb(214 214 214 / 22%);
+  background: hsla(0,0%,100%,.9);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(8px);
   margin-bottom: 20px;
 }
 
 #table-header th small i {
   text-align: center;
   color: #6d6d6d;
-  padding: 4px;
+  padding: 3px;
   cursor: pointer
 }
 
 #table-content {
   padding: 10px; 
   border-collapse: collapse;
-  border-radius: 6px;
+  border-radius: 4px;
   overflow: hidden;
-  background: #e6e6e6;
-  border: 1px solid #e5e5e5;
+  border: 1px solid rgba(255, 255, 255, .22);
+  background: linear-gradient(97deg, #ffffff66 11.23%, #ffffff66 115.9%);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: inset 0 0 0.5px 1px hsl(0deg 0% 100% / 7.5%), 0 0 0 1px hsl(0deg 0% 100% / 5%), 0 0.3px 0.4px hsla(0, 0%, 0%, 0.02), 0 0.9px 1.5px hsla(0, 0%, 0%, 0.045), 0 3.5px 6px hsl(0deg 0% 100% / 9%);
 }
 
 #table-content tr {
-  border-radius: 6px;
+  border-radius: 4px;
   border: none;
   border: 1px solid #e5e5e5;
-  background: var(--white)
 }
 
 #table-content tr:nth-child(1) {
-  background: #f6f6f6;
+  background: linear-gradient(97deg, #ffffff66 11.23%, #ffffff66 115.9%);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+#table-content tr td:nth-child(2) a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+#table-content tr td:nth-child(2) a img {
+  border-radius: 50%;
+    border: 1px solid #ffffff00;
 }
 
 #table-content tr td {
@@ -201,29 +275,27 @@ body {
   text-decoration: underline;
 }
 
-#table-content tr td:nth-child(2) a {
-  text-decoration: underline;
-}
-
 #table-content tr .title {
   text-align: left;
   padding-left: 25px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  background: hsla(0,0%,100%,.9);
 }
 
 #table-content tr b {
   padding-right: 5px;
+  letter-spacing: 0.1px;
+  font-weight: 500
 }
 
 #table-content tr td button {
   background: var(--white);
-  padding: 5px 15px;
-  border-radius: 6px;
-  border: 1px solid #e5e5e5;
-  font-weight: 600;
-  font-family: inherit;
+  padding: 6px 15px;
+  border-radius: 3px;
+  border: 1px solid rgba(0, 0, 0, .09);
+  font-weight: 500;
   cursor: pointer;
   transition: all .1s ease
 }
@@ -231,20 +303,23 @@ body {
 #table-content tr td .high {
   padding: 3px 15px;
   border-radius: 99px;
-  background-color: rgb(230, 255, 250);
+  border: 1px solid rgb(19, 222, 185);
+  background-color: rgb(230 255 244);
   color: rgb(19, 222, 185);
 }
 
 #table-content tr td .medium {
   padding: 3px 15px;
   border-radius: 99px;
-  background-color: rgb(232, 247, 255);
-  color: rgb(73, 190, 255);
+  border: 1px solid rgb(93, 135, 255);
+  background-color: rgb(236 244 255);
+  color: rgb(93, 135, 255);
 }
 
 #table-content tr td .short {
   padding: 3px 15px;
   border-radius: 99px;
+  border: 1px solid rgb(250, 137, 107);
   background-color: rgb(253, 237, 232);
   color: rgb(250, 137, 107);
 }
@@ -271,9 +346,10 @@ body {
 }
 
 .btn-active {
-  background-color: rgb(230, 255, 250) !important;
-  color: rgb(19, 222, 185) !important;
-  border: 1px solid rgb(19, 222, 185) !important;
+  border: 1px solid rgb(26 206 173) !important;
+  background-color: rgb(19, 222, 185) !important;
+  color: var(--white) !important;
+  box-shadow: 0 0 3px 2px rgb(19 222 185 / 21%);
 }
 
 .user-product {
@@ -290,7 +366,7 @@ body {
 }
 
 .no-posts-yet img {
-    width: 160px;
+    width: 150px;
 }
 
 .no-posts-yet span {

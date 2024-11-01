@@ -26,9 +26,9 @@ function swiperSettings() {
     });
 }
 
-function downloadPowerpoint( jsonData, fileName ) {
+function downloadPowerpoint( dataJson, fileName ) {
     try {
-        if ( jsonData && jsonData.base64Data ) {
+        if ( dataJson && dataJson.base64Data ) {
             cuteToast({
                 type: "info",
                 title: "Thông báo",
@@ -36,7 +36,7 @@ function downloadPowerpoint( jsonData, fileName ) {
                 timer: 2500
             });
             // Decode base64 data to blob
-            var byteCharacters = atob( jsonData.base64Data );
+            var byteCharacters = atob( dataJson.base64Data );
             var byteNumbers = new Array( byteCharacters.length );
             for ( var i = 0; i < byteCharacters.length; i++ ) {
                 byteNumbers[i] = byteCharacters.charCodeAt(i);
@@ -70,8 +70,8 @@ function actionInteractPost( data, index )
 {
     CallAjax.send('POST', data, 'talk/mvc/core/HandleActionInteract.php', ( response ) => {
         try {
-            const jsonData = CallAjax.get( response );
-            const jsonType = ( jsonData.result === 'insert' ) ? 'add' : 'remove';
+            const dataJson = CallAjax.get( response, 'off' ).err_mess;
+            const jsonType = ( dataJson.result === 'insert' ) ? 'add' : 'remove';
             TypeClass.class( `${ jsonType }`, buttonActions[ index ], 'show' );
         }
         catch ( err ) { console.error() } 
@@ -119,10 +119,7 @@ function saveSuggestKeyword() {
 }
 
 function renderSuggestPostInterface( data ) {
-    var html = `<span class="title-suggest">
-    <i class="fa-regular fa-lightbulb"></i>
-    Bài viết, bạn có thể thích. </span>`; 
-    
+    var html = `<span class="title-suggest">⭐ Bài đăng, bạn có thể thích </span>`; 
     html += data.reduce((result, item) => {
         const images = item.images;
         const arrayFiles = images.split("||");
@@ -148,13 +145,14 @@ function renderSuggestPostInterface( data ) {
 // Get suggested articles based on the keywords obtained
 function handleSuggestPosts( array ) {
     const data = {
+        'title' : $('#title-powerpoint').textContent,
         'keywords' : array.join("|"),
         'id' : GetCurrentPageOnURL.get('id'),
-        'class' : 'suggestposts'
+        'class' : 'SuggestPosts'
     };
 
     CallAjax.send('POST', data ,'mvc/core/HandleProposals.php', ( response ) => {
-        const dataJson = CallAjax.get( response );
+        const dataJson = CallAjax.get( response, 'off' ).err_mess;
         try {
             renderSuggestPostInterface( dataJson );        
         } 
@@ -197,7 +195,7 @@ function savedView() {
     };
 
     CallAjax.send('POST', data, 'talk/mvc/core/HandleActionInteract.php', function (response) {
-        const dataJson = CallAjax.get( response );
+        const dataJson = CallAjax.get( response, 'off' ).err_mess;
         try {
             if (dataJson.error) {
                 cuteToast({
@@ -215,71 +213,82 @@ function savedView() {
 var startTime = new Date();
 
 const detailJavascript = {
-    handleEvents: () => {
+    handleEvents() {
         document.addEventListener('DOMContentLoaded', () => {
-            // Load swiper 
-            swiperSettings();
+            this.initializeSwiper();
+            this.setupDownloadButton();
+            this.setupButtonActions();
+            this.setupBeforeUnloadListener();
+            this.getSuggestPosts();
+        });
+    },
 
-            // Download file powerpoint 
-            btnDownload.onclick = () => {  
-                var fileId = GetDataElement.get( btnDownload, 'data-id' );
-                var fileName = GetDataElement.get( btnDownload, 'data-file' );
+    initializeSwiper() {
+        swiperSettings(); // Khởi tạo Swiper
+    },
 
-                const data = {
-                    'file' : encodeURIComponent( fileName ),
-                    'id' : fileId,
-                    'class' : 'download'
-                };
+    setupDownloadButton() {
+        btnDownload.onclick = () => {
+            const fileId = GetDataElement.get(btnDownload, 'data-id');
+            const fileName = GetDataElement.get(btnDownload, 'data-file');
 
-                CallAjax.send('POST', data ,'mvc/core/Download.php', ( response ) => {
-                    try {
-                        const jsonData = CallAjax.get( response );
-                        if ( jsonData ) {
-                            downloadPowerpoint( jsonData, fileName );   
-                        }              
-                    } 
-                    catch ( err ) { console.error( err ) }
-                });
+            const data = {
+                file: encodeURIComponent(fileName),
+                id: fileId,
+                class: 'download',
             };
 
-            // Button Collention & Like 
-            buttonActions.forEach(( bt, index ) => {
-                bt.onclick = () => { 
-                    let type = ( index === 0 ) ? 'ugcollection' : 'uglike';
-                    // Data 
-                    const id = GetCurrentPageOnURL.get('id');
-                    const data = {
-                        'idPost' : id,
-                        'class' : type
-                    };
-                    // Send 
-                    actionInteractPost( data, index );   
+            CallAjax.send('POST', data, 'mvc/core/Download.php', (response) => {
+                try {
+                    const dataJson = CallAjax.get(response, 'off').err_mess;
+                    if (dataJson) {
+                        downloadPowerpoint(dataJson, fileName);
+                    }
+                } catch (err) {
+                    console.error(err);
                 }
             });
-        });
+        };
+    },
 
-        window.addEventListener('beforeunload', function ( event ) {
-            var endTime = new Date(); 
-            var timeSpent = endTime - startTime; 
-            var timeSpentInSeconds = Math.round(timeSpent / 1000); 
-            // Hanle 
-            if ( Math.round( timeSpentInSeconds / 60 ) > 2 ) {
-                // Suggest post Proposals
-               saveSuggestKeyword();
-            } 
+    setupButtonActions() {
+        buttonActions.forEach((bt, index) => {
+            bt.onclick = () => {
+                const type = index === 0 ? 'ugcollection' : 'uglike';
+                const id = GetCurrentPageOnURL.get('id');
+                const data = {
+                    idPost: id,
+                    class: type,
+                };
+                actionInteractPost(data, index);
+            };
+        });
+    },
+
+    setupBeforeUnloadListener() {
+        window.addEventListener('beforeunload', (event) => {
+            const endTime = new Date();
+            const timeSpent = endTime - startTime;
+            const timeSpentInSeconds = Math.round(timeSpent / 1000);
+
+            if (Math.round(timeSpentInSeconds / 60) > 2) {
+                saveSuggestKeyword(); 
+            }
+
             if (timeSpentInSeconds > 10) {
-                // If the time in the page is greater than 10s
-                savedView();
-            } 
+                savedView(); 
+            }
         });
+    },
 
-        // get suggest post 
-        getSuggestPosts();
-    }, 
+    getSuggestPosts() {
+        getSuggestPosts(); 
+    },
 
-    start: () => {
-        detailJavascript.handleEvents();
-    }
-}
+    start() {
+        this.handleEvents();
+    },
+};
 
+// Khởi chạy script
 detailJavascript.start();

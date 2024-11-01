@@ -22,12 +22,12 @@ if ( $$('.btn-follower') )
             }
             CallAjax.send('POST', data, 'talk/mvc/core/HandleActionInteract.php', function( response ) 
             { 
-                const jsonData = CallAjax.get( response );
+                const dataJson = CallAjax.get( response, 'off' ).err_mess;
                 try {
                     let render = '';
-                    if ( jsonData.result ) 
+                    if ( dataJson.result ) 
                     {
-                        if ( jsonData.result === 'yes' ) 
+                        if ( dataJson.result === 'yes' ) 
                         {
                             render = `<i class="fa-regular fa-circle-check"></i> <span> Đã theo dõi</span>`;
                         } else {

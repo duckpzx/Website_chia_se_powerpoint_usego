@@ -1,6 +1,3 @@
-const $ = document.querySelector.bind(document);
-const $$ = document.querySelectorAll.bind(document);
-
 const btnSubmit = $('.btn-gradient');
 const inputOtp = $("input[name='otp']");
 const btnOtp = $('.btn-otp');
@@ -496,7 +493,7 @@ btnOtp.addEventListener('click', () => {
         // Send Data 
         emailPrepare = reduceEmailTheft(formValues['email']);
 
-        const dataToSend = {
+        const data = {
             'firstname' : formValues['firstname'],
             'lastname' : formValues['lastname'],
             'email' : emailPrepare,
@@ -506,32 +503,18 @@ btnOtp.addEventListener('click', () => {
         }
 
         handleLoading('on');
-        CallAjax('POST', dataToSend, 'mvc/core/HandleDataLogind.php?class=importeddata', function(response) {
-            if (response) {
-                const startIndex  = response.indexOf('{');
-                const endIndex = response.lastIndexOf('}');
-                if (startIndex !== -1 && endIndex !== -1) {
-                    const jsonSubstring = response.substring(startIndex, endIndex + 1);
-                    const jsonObject = JSON.parse(jsonSubstring);
-                    const accuracyValue = jsonObject.error.otp;
-                    
-                    if (accuracyValue !== null) {
-                        cuteToast({
-                            type: "error",
-                            title: "Lỗi",
-                            message: accuracyValue,
-                            timer: 2500
-                        });
-                        handleLoading('off');
-                        return;
-                    } 
-                    handleLoading('off');
+        CallAjax.send('POST', data, 'mvc/core/HandleDataLogind.php', function (response) {
+            try {
+                const dataJson = CallAjax.get( response );
+
+                if (dataJson) {
                     incrementLoading(); 
                     sendEmail(codeActiveToken);
-                    return;
                 } 
+                handleLoading('off');
             }
-        });                        
+            catch (error) {};
+        });                       
     }
 });
 

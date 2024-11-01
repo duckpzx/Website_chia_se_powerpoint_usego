@@ -21,6 +21,13 @@ function callAjaxWithFormData(method, formData, target, callback) {
     xhr.send(formData);
 }
 
+function isLoading(type) {
+    if ($('.upload-wrapper .loading-wrapper')) {
+        const loadding = $('.upload-wrapper .loading-wrapper');
+        (type === 'add') ? TypeClass.class('add', loadding, 'show') : TypeClass.class('remove', loadding, 'show');
+    }
+}
+
 function updateBtnSeeMore() {
     const iconClass = spanDescribe.classList.contains('fulltext') ? 'fa-caret-up' : 'fa-caret-down';
     const icon = `<i class="fa-solid ${iconClass}"></i>`;
@@ -261,10 +268,12 @@ function setStatusChangeInfo(data) {
 
 const uploadWrapper = $('.upload-wrapper');
 const btnUserUpPPT = $('#btn-user-upload-ppt');
+const btnRules = $('.b-rules');
 const btnUserService = $('#btn-user-service');
 const itemUploadPPTBottom = $('.item-upload-ppt .bottom');
 const inputPowerpoint = $('input[name="powerpoint"]');
 // const powerpointHidden = $$('.wrapper-info-file-upload');
+let identifyAutomatic = false;
 
 
 function showUploadWrapper() {
@@ -288,22 +297,13 @@ function loadIconNameTxtFileUpload(src) {
 
 function checkInputFilePowerpoint( infoFile ) {
     const name = infoFile.name;
-    const arrayNameAccept = ['rar', '7z', 'bin', 'cab', 'zip', 'pptx'];
+    const arrayNameAccept = ['rar', 'zip', 'pptx'];
     // Handle name
     const nameTxt = name.split('.').pop();
     // Identify 
     switch(nameTxt) {
         case 'rar':
             loadIconNameTxtFileUpload('rar.png');
-            break;
-        case '7z':
-            loadIconNameTxtFileUpload('7z.png');
-            break;
-        case 'bin': 
-            loadIconNameTxtFileUpload('bin.png');
-            break;
-        case 'cab': 
-            loadIconNameTxtFileUpload('cab.png');
             break;
         case 'zip': 
             loadIconNameTxtFileUpload('zip.png');
@@ -349,6 +349,7 @@ function closePowerpoint() {
         };
     }
     resetInputFile( inputPowerpoint );
+    identifyAutomatic = false;
 }
 
 // Show compressed file 
@@ -501,7 +502,6 @@ function updateImageSources(images, array) {
 }
 
 function showImagesBelow() {
-    viewImageListBelow.innerHTML = DOMPurify.sanitize('', {RETURN_TRUSTED_TYPE: true});
     // Delete the previous elements and store them back in the array
     const html = arrayImageUploads.reduce((result, image) => {
         return (
@@ -571,12 +571,8 @@ function attachEventListeners() {
 }
 
 function screenRender() {
-    selectListImages.innerHTML = DOMPurify.sanitize('', {RETURN_TRUSTED_TYPE: true});
-    // Delete the previous elements and then display the entire screen
-
     const html = arrayImageUploads.map(item => renderPreviewImageUpload(item.src)).join('');
     selectListImages.innerHTML = DOMPurify.sanitize(html, { RETURN_TRUSTED_TYPE: true });
-
         
     const images = selectListImages.querySelectorAll('li img');
     updateImageSources(images, arrayImageUploads);
@@ -623,341 +619,349 @@ function createObjectURLAsync(file) {
     });
 }
 
+function contentChangeRules() {
+    const title = 'Hướng dẫn chuyển đổi File sang ảnh';
+
+    const html = `
+        <div class="instruct">
+            <div class="text">
+                <b class="ins-title"> Hướng dẫn chuyển đổi File sang ảnh </b>
+                <span class="ins-content">
+                    Chuyển đổi File thành ảnh rồi tải nên sẽ mang lại <b>Tốc độ</b> nhanh hơn
+                </span>
+                <span class="ins-content">
+                    Cách để đổi File PPTX thành "Ảnh" 
+                    <b>Chọn</b> File -> Export -> Change File Type -> <b>Chọn</b> "PNG" hoặc "JPEG" sau đó lưu.
+                </span>
+            </div>
+            <img 
+            src="${ AlertUsego.template() }images/icons/revert_pptx_rules.png" 
+            width="200">
+        </div>
+    `;
+
+    return [title, html];
+}
+
 const profileJavascript = {
+    init: () => {
+        document.addEventListener('DOMContentLoaded', profileJavascript.handleEvents);
+    },
+
     handleEvents: () => {
-        document.addEventListener('DOMContentLoaded', () => {
-            // Show descbrice  
-            btnSeeMore?.addEventListener('click', () => {
-                updateBtnSeeMore();
-            });            
+        // Show description
+        btnSeeMore?.addEventListener('click', updateBtnSeeMore);
 
-            // Click title task 
-            menuLists?.forEach((item, index) => {
-                item.addEventListener('click', () => {
-                    resetActiveMenuList();// reset before perform
-                    if( item === btnEditorMenu ) {
-                        if (editorTexts) 
-                        TypeClass.class('add', editorTexts, 'showedit');
-                        if (editorImages)
-                        TypeClass.class('add', editorImages, 'showedit');
-                    } else {
-                        if (editorTexts) 
-                        TypeClass.class('remove', editorTexts, 'showedit');
-                        if (editorImages)
-                        TypeClass.class('remove', editorImages, 'showedit')
-                    }
-                    // Check true or false 
-                    TypeClass.class('add', item, 'activers');
-                    TypeClass.class('add', lineHr[index], 'show');
-                });
+        // Click title task 
+        menuLists?.forEach((item, index) => {
+            item.addEventListener('click', () => {
+                resetActiveMenuList();
+                const isEditorMenu = item === btnEditorMenu;
+                if (editorTexts) TypeClass.class(isEditorMenu ? 'add' : 'remove', editorTexts, 'showedit');
+                if (editorImages) TypeClass.class(isEditorMenu ? 'add' : 'remove', editorImages, 'showedit');
+                TypeClass.class('add', item, 'activers');
+                TypeClass.class('add', lineHr[index], 'show');
             });
+        });
 
-            // Click update avatar 
-            changeAvatar?.addEventListener('click', () => {
-                showUpdateAvatar();
-            });
-            
-            // Close background event 
-            modalOverlay?.addEventListener('click', (e) => {
-                if(e.target === e.currentTarget) {
-                    removeUpdateAvatar();
-                    closeUploadWrapper();
+        // Click update avatar 
+        changeAvatar?.addEventListener('click', showUpdateAvatar);
+
+        // Close background event 
+        modalOverlay?.addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                removeUpdateAvatar();
+                closeUploadWrapper();
+            }
+        });
+
+        // Edit avatar 
+        inputAvatar?.addEventListener('input', (event) => {
+            revokeObjectURLPosterMain(previewPosterImageMain);
+            selectedFile = event.target.files[0];
+
+            if (checkInputFileImage(selectedFile)) {
+                const srcTemporaty = URL.createObjectURL(selectedFile);
+                setPreviewPhotos(previewPosterImageMain, srcTemporaty, previewPosterSrcDefault);
+                TypeClass.class('add', contaiReset, 'show');
+                buttonUpdateOn();
+            }
+        });
+
+        // Revert avatar 
+        buttonContaiReset?.addEventListener('click', () => {
+            revokeObjectURLPosterMain(previewPosterImageMain);
+            previewPosterImageMain.src = previewPosterSrcDefault;
+            resetInputFile(inputAvatar);
+            buttonUpdateOff();
+            TypeClass.class('remove', contaiReset, 'show');
+        });
+
+        // Close change avatar 
+        buttonCloseContaiMoDal?.addEventListener('click', () => {
+            removeUpdateAvatar();
+        });
+
+        // Accept update avatar 
+        buttonUpdateAvatar?.addEventListener('click', () => {
+            buttonUpdateOff();
+            const formData = new FormData();
+            formData.append('avatar', selectedFile);
+            formData.append('class', 'UpdateAvatar');
+
+            callAjaxWithFormData('POST', formData, 'mvc/core/HandleDataUpload.php', (response) => {
+                try {
+                    const dataJson = CallAjax.get(response);
+                    if (dataJson) {
+                        showStatusAlertUpdate(previewPosterImageMain.src);
+                    } 
+                } catch (err) {
+                    console.error(err);
                 }
             });
+        });
 
-            // Edit avatar 
-            inputAvatar?.addEventListener('input', (event) => {
-                revokeObjectURLPosterMain(previewPosterImageMain);
-                // if on exists then remove src
-                selectedFile = event.target.files[0];
-                // check input file 
-                if(checkInputFileImage(selectedFile)) {
-                    const srcTemporaty = URL.createObjectURL(selectedFile);
-                    // No URL createObjectURL then set previewPosterSrcDefault Default 
-                    setPreviewPhotos(previewPosterImageMain, srcTemporaty, previewPosterSrcDefault);
-                    // Show button reset 
-                    TypeClass.class('add', contaiReset, 'show');
-                    // On button send file
-                    buttonUpdateOn();
-                }  
-            });
+        // Use avatar old
+        const listAvatarOlds = $$?.('.item-avatar-old img');
+        listAvatarOlds?.forEach((img) => {
+            img.onclick = () => {
+                const srcImagePath = img.src.split('/').pop();
+                const data = { 'avatar': srcImagePath, 'class': 'UseAvatarOld' };
 
-            // Revert avatar 
-            buttonContaiReset?.addEventListener('click', () => {
-                revokeObjectURLPosterMain(previewPosterImageMain);
-                // if on exists then remove src
-                previewPosterImageMain.src = previewPosterSrcDefault;
-                // Reset input
-                resetInputFile(inputAvatar);
-                // Off button send file
-                buttonUpdateOff();
-                // Off button contai button reset 
-                TypeClass.class('remove', contaiReset, 'show');
-            });
-
-            // Close change avatar 
-            buttonCloseContaiMoDal?.addEventListener('click', () => {
-                removeUpdateAvatar();
-                // Close change avatar 
-            });
-
-            // Accept update avatar 
-            buttonUpdateAvatar?.addEventListener('click', () => {
-                // Prevent to avoid clicking quickly
-                buttonUpdateOff();
-                // Send data to HandleDataUpload.php
-                const formData = new FormData();
-                formData.append('avatar', selectedFile);
-                formData.append('class', 'updateavatar');
-                callAjaxWithFormData('POST', formData, 'mvc/core/HandleDataUpload.php', function (response) {
+                CallAjax.send('POST', data, 'mvc/core/HandleDataUpload.php', (response) => {
+                    const dataJson = CallAjax.get(response);
                     try {
-                        showStatusAlertUpdate(previewPosterImageMain.src);
+                        if (!dataJson.error) {
+                            showStatusAlertUpdate(img.src);
+                            setPreviewPhotos(previewPosterImageMain, img.src, previewPosterSrcDefault);
+                            previewPosterImageMain.src = previewPosterSrcDefault;
+                        }
+                    } catch (err) {
+                        console.error(err);
+                    }
+                });
+            };
+        });
+
+        // Close editor information user
+        btnRemoveInfo?.addEventListener('click', () => {
+            btnEditText.click();
+        });
+
+        // Edit information content user
+        btnEditText?.addEventListener('click', () => {
+            changeContentButtonEdit();
+            setStatusEditText();
+        });
+
+        // Accept editor information user 
+        buttonUpdateIfno?.addEventListener('click', () => {
+            if (!hasErrors(inputTextValues)) {
+                const data = { ...inputTextValues, class: 'EditInformation' };
+                CallAjax.send('POST', data, 'mvc/core/HandleDataUpload.php', (response) => {
+                    try {
                         cuteToast({
                             type: "success",
                             title: "Thành công",
-                            message: CallAjax.get(response),
-                            timer: 3500
+                            message: CallAjax.get(response, 'off'),
+                            timer: 2500
                         });
-                    }
-                    catch (err) { console.error(err) };
-                });
-            });
-
-            // Use avatar olds
-            const listAvatarOlds = $$?.('.item-avatar-old img');
-            listAvatarOlds?.forEach(( img ) => {
-                img.onclick = () => {
-                    const srcImage = ( img.src ) ? img.src : '';
-                    const segments = srcImage.split('/');
-                    const srcImagePath = segments[segments.length - 1];
-                    const data = {
-                        'avatar': srcImagePath,
-                        'class': 'useavatarold'
-                    };
-                    CallAjax.send('POST', data, 'mvc/core/HandleDataUpload.php', ( response ) => {
-                        const dataJson = CallAjax.get( response );
-                        try {
-                            if ( !dataJson.error ) {
-                                cuteToast({
-                                    type: "success",
-                                    title: "Thành công",
-                                    message: dataJson,
-                                    timer: 3000
-                                })
-                                showStatusAlertUpdate(srcImage);
-                                setPreviewPhotos(previewPosterImageMain, srcImage, previewPosterSrcDefault);
-                                previewPosterImageMain.src = previewPosterSrcDefault;
-                            }
-                        }
-                        catch( err ) {
-                            console.error( err );
-                        }
-                    })
-                };
-            });
-
-            // Close editor infomation user
-            btnRemoveInfo?.addEventListener('click', () => {
-                btnEditText.click();
-            });
-
-            // Editor infomation content user
-            btnEditText?.addEventListener('click', () => {
-                changeContentButtonEdit();
-                setStatusEditText();
-            });
-
-            // Accept editor infomation user 
-            buttonUpdateIfno?.addEventListener('click', () => {
-                if( !hasErrors( inputTextValues ) ) {
-                    // Handle prepare data 
-                    const data = inputTextValues;
-                    data.class = 'editinformation';
-                    CallAjax.send('POST', data, 'mvc/core/HandleDataUpload.php', ( response ) => {
-                        try {
-                            cuteToast({
-                                type: "success",
-                                title: "Thành công",
-                                message: CallAjax.get(response),
-                                timer: 2500
-                            })
-                            setStatusChangeInfo( data );
-                            btnRemoveInfo.click();
-                            btAuthorMenu.click();  
-                        }
-                        catch ( err ) { 
-                            cuteToast({
-                                type: "error",
-                                title: "Lỗi",
-                                message: "Không thể cập nhật thông tin.",
-                                timer: 2500
-                            })
-                         }
-                    })
-                } 
-            });
-
-            // Handle action convention shared 
-            for (const editText in inputTextUser) {
-                const inputText = inputTextUser[editText];
-                inputText?.addEventListener('input', (e) => {
-                    const keyName = editText;
-                    const value = e.target.value;
-                    
-                    if (inputText === textEditFullname) {
-                        limitConsecutiveSpaces(textEditFullname, 2);
-                    }
-                    inputTextValues[keyName] = value.trim() || ''; 
-                });
-            };
-
-            // Upload file powerpoint 
-            btnUserUpPPT?.addEventListener('click', () => {
-                showUploadWrapper();
-            });
-
-            // Upload file powerpoint
-            if ( $('input[name="powerpoint"]') ) {
-                inputPowerpoint.oninput = (event) => {
-                    const file = event.target.files[0];
-                    if( file ) {
-                        if( checkInputFilePowerpoint( file ) ) {
-                            selectPowerpoint.pop();
-                            selectPowerpoint.push( event.target.files[0] );
-                            const name = handleNameInterfaceFile( file, 12 );
-                            const size = handleSizeInterfaceFile( file );
-                            powerpointHiddenOn( name, size );
-                            closePowerpoint();
-                        } else {
-                            // Alert
-                            cuteToast({
-                                type: "error",
-                                title: "Lỗi",
-                                message: "File tải lên, không đúng định dạng!",
-                                timer: 3500
-                            });
-                        }
-                    }
-                    resetInputFile( inputPowerpoint );
-                };
-            }
-
-            // Open compression tip
-            btnSuggestCompressed?.addEventListener('click', () => { 
-                TypeClass.class('add', wrapperCompressed, 'active');
-                if( DetectMob.check() ) {
-                    TypeClass.class('add', wrapperCompressed, 'show');
-                    TypeClass.class('add', itemUploadPhotos, 'show');
-                }
-            });
-            
-            // Close compression tip
-            btnCloseSuggestCompressed?.addEventListener('click', () => { 
-                TypeClass.class('remove', wrapperCompressed, 'active');
-                if( DetectMob.check() ) {
-                    TypeClass.class('remove', wrapperCompressed, 'show');
-                    TypeClass.class('remove', itemUploadPhotos, 'show');
-                }
-            });
-
-            // Check file compression  
-            inputCompressed?.addEventListener('input', (event) => {
-                const selectedFile = event.target.files[0];
-                if(selectedFile) {
-                    const nameFile = selectedFile.name;
-                    const nameFileTxt = getExtensionFile(nameFile);
-                    const nameLowercaseTxt = nameFileTxt.toLowerCase();
-                    // is The test file compressed ? 
-                    const check = checkContainTxt(nameLowercaseTxt);
-                    if(check) {
+                        setStatusChangeInfo(data);
+                        btnRemoveInfo.click();
+                        btAuthorMenu.click();
+                    } catch (err) {
                         cuteToast({
                             type: "error",
                             title: "Lỗi",
-                            message: "File tải lên, Đã là File nén!",
-                            timer: 3000
-                        }) 
-                    } else {
-                        handleCompressed(nameFile, selectedFile);
+                            message: "Không thể cập nhật thông tin.",
+                            timer: 2500
+                        });
                     }
-                }
-                resetInputFile(inputCompressed);
-            });
+                });
+            }
+        });
 
-            // Drag files comfortably
-            dropZone?.addEventListener('drop', (event) => {
-                event.preventDefault();
-                const selectedFile = event.dataTransfer.files[0];
-                const nameFile = selectedFile.name;
-                const nameFileTxt = getExtensionFile(nameFile);
-                const nameLowercaseTxt = nameFileTxt.toLowerCase();
-                // is The test file compressed ? 
-                const check = checkContainTxt(nameLowercaseTxt);
-                if(check) {
+        // Handle action convention shared 
+        for (const editText in inputTextUser) {
+            const inputText = inputTextUser[editText];
+            inputText?.addEventListener('input', (e) => {
+                const value = e.target.value;
+                if (inputText === textEditFullname) {
+                    limitConsecutiveSpaces(textEditFullname, 2);
+                }
+                inputTextValues[editText] = value.trim() || '';
+            });
+        };
+
+        // Upload file PowerPoint 
+        btnUserUpPPT?.addEventListener('click', showUploadWrapper);
+        btnRules?.addEventListener('click', () => {
+            AlertUsego.identify('yes');
+            AlertUsego.show(contentChangeRules()[0], contentChangeRules()[1]);
+        });
+
+        // Upload PowerPoint 
+        if ($('input[name="powerpoint"]')) {
+            $('.manual').addEventListener('click', () => {
+                inputPowerpoint.oninput = (event) => {
+                    const file = event.target.files[0];
+                    if (file && checkInputFilePowerpoint(file)) {
+                        selectPowerpoint.pop();
+                        selectPowerpoint.push(file);
+                        const name = handleNameInterfaceFile(file, 10);
+                        const size = handleSizeInterfaceFile(file);
+                        powerpointHiddenOn(name, size);
+                        closePowerpoint();
+                    } else {
+                        cuteToast({
+                            type: "error",
+                            title: "Lỗi",
+                            message: "File tải lên không đúng định dạng!",
+                            timer: 3500
+                        });
+                    }
+                    resetInputFile(inputPowerpoint);
+                };
+            });
+            
+            $('.automatic').addEventListener('click', () => {
+                inputPowerpoint.oninput = (event) => {
+                    isLoading('add');
+                    
+                    const file = event.target.files[0];
+                    if (file && checkInputFilePowerpoint(file)) {
+                        const formData = new FormData();
+                        formData.append('uploaded_file', file);
+                        formData.append('class', 'AutomaticUpload');
+                        selectPowerpoint.pop();
+                        selectPowerpoint.push(file);
+                        const name = handleNameInterfaceFile(file, 10);
+                        const size = handleSizeInterfaceFile(file);
+                        powerpointHiddenOn(name, size);
+
+                        callAjaxWithFormData('POST', formData, 'mvc/core/HandleDataUpload.php', function (response) {
+                            const dataJson = CallAjax.get(response, 'off').err_mess;
+                            try {
+                                if (dataJson) {
+                                    const images = dataJson.images.split('||');
+                                    images.forEach(item => arrayImageFiles.push(item));
+                                    images.forEach((item)=> {
+                                        const srcPreviewImage = `${AlertUsego.template()}images/uploads/powerpoint-images/${item}`;
+                                        arrayImageUploads.push(prepareObjectImage('images', 1, srcPreviewImage));
+                                    });
+                    
+                                    showImagesBelow();
+                                    screenRender();
+
+                                    identifyAutomatic = true;
+                                    isLoading('remove');
+                                }
+                            }
+                            catch (err) { console.error(err) };
+                        });
+
+                        closePowerpoint();
+                    } else {
+                        cuteToast({
+                            type: "error",
+                            title: "Lỗi",
+                            message: "File tải lên không đúng định dạng!",
+                            timer: 3500
+                        });
+                        isLoading('remove');
+                    }
+                    resetInputFile(inputPowerpoint);
+                };
+            });
+        }
+
+        // Open compression tip
+        btnSuggestCompressed?.addEventListener('click', () => {
+            TypeClass.class('add', wrapperCompressed, 'active');
+            if (DetectMob.check()) {
+                TypeClass.class('add', wrapperCompressed, 'show');
+                TypeClass.class('add', itemUploadPhotos, 'show');
+            }
+        });
+
+        // Close compression tip
+        btnCloseSuggestCompressed?.addEventListener('click', () => {
+            TypeClass.class('remove', wrapperCompressed, 'active');
+            if (DetectMob.check()) {
+                TypeClass.class('remove', wrapperCompressed, 'show');
+                TypeClass.class('remove', itemUploadPhotos, 'show');
+            }
+        });
+
+        // Check file compression  
+        inputCompressed?.addEventListener('input', (event) => {
+            const selectedFile = event.target.files[0];
+            if (selectedFile) {
+                const nameFileTxt = getExtensionFile(selectedFile.name).toLowerCase();
+                if (checkContainTxt(nameFileTxt)) {
                     cuteToast({
                         type: "error",
                         title: "Lỗi",
-                        message: "File tải lên, Đã là File nén!",
+                        message: "File tải lên đã là File nén!",
                         timer: 3000
-                    })
+                    });
                 } else {
-                    inputCompressed.selectedFile = selectedFile;
-                    handleCompressed(nameFile, selectedFile);
+                    handleCompressed(selectedFile.name, selectedFile);
                 }
-            });
-            
-            // Drag files comfortably 
-            dropZone?.addEventListener('dragover', (event) => {
-                event.preventDefault();
-            });
-
-            // Upload images 
-            inputImageUploads?.addEventListener('input', async (event) => {
-                const files = event.target.files;
-                if(checkMaxLengthFileUpload(files)) return;
-            
-                for (const file of files) {
-                    if(checkInputFileImage(file)) {
-                        const srcPreviewImage = await createObjectURLAsync(file);
-                        arrayImageUploads.push(prepareObjectImage(file.name, file.size, srcPreviewImage));
-                        arrayImageFiles.push(file);
-                    }
-                }
-                
-                if(checkMaxLengthFileUpload(arrayImageUploads)) return;
-            
-                showImagesBelow();
-                screenRender();
-                // Reset upload input 
-                resetInputFile(inputImageUploads);
-            });
-
-            // Click next image
-            btnNextZoomImg?.addEventListener('click', () => {
-                handleClickNextAndPrev('next');
-            });
-            
-            // Click prev image 
-            btnPrevZoomImg?.addEventListener('click', () => {
-                handleClickNextAndPrev('prev');
-            }); 
-
-            // Show avatar user when on click 
-            mainAvatar.onclick = () => {
-                const imageUrl = mainAvatar.src;
-                window.open(imageUrl, '_blank');
-            };
-
-            // Close file powerpoint upload
-            $('.btn-close-x')?.addEventListener('click', () => {
-                selectPowerpoint.pop();  
-                TypeClass.class('remove', wrapperInfoFileUpload, 'show');
-            });
+            }
+            resetInputFile(inputCompressed);
         });
+
+        // Drag files comfortably
+        dropZone?.addEventListener('drop', (event) => {
+            event.preventDefault();
+            const selectedFile = event.dataTransfer.files[0];
+            const nameFileTxt = getExtensionFile(selectedFile.name).toLowerCase();
+            if (checkContainTxt(nameFileTxt)) {
+                cuteToast({
+                    type: "error",
+                    title: "Lỗi",
+                    message: "File tải lên đã là File nén!",
+                    timer: 3000
+                });
+            } else {
+                inputCompressed.selectedFile = selectedFile;
+                handleCompressed(selectedFile.name, selectedFile);
+            }
+        });
+
+        dropZone?.addEventListener('dragover', (event) => {
+            event.preventDefault();
+        });
+
+        // Upload images 
+        inputImageUploads?.addEventListener('input', async (event) => {
+            const files = event.target.files;
+            if (checkMaxLengthFileUpload(files)) return;
+
+            for (const file of files) {
+                if (checkInputFileImage(file)) {
+                    const srcPreviewImage = await createObjectURLAsync(file);
+                    arrayImageUploads.push(prepareObjectImage(file.name, file.size, srcPreviewImage));
+                    arrayImageFiles.push(file);
+                }
+            }
+
+            if (checkMaxLengthFileUpload(arrayImageUploads)) return;
+
+            showImagesBelow();
+            screenRender();
+            resetInputFile(inputImageUploads);
+        });
+
+        // Click next/prev image
+        btnNextZoomImg?.addEventListener('click', () => handleClickNextAndPrev('next'));
+        btnPrevZoomImg?.addEventListener('click', () => handleClickNextAndPrev('prev'));
     },
-    
+
     start: () => {
-        profileJavascript.handleEvents();
+        profileJavascript.init();
     }
 };
 
-profileJavascript.start();
+profileJavascript.init();

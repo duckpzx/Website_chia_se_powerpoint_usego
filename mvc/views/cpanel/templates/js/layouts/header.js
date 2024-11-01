@@ -39,10 +39,7 @@ function prepareClassActiveHeader( type ) {
     const identifyColor = ( type === 'add' ) ? '#464646' : '';
     const identifySearch = ( type === 'add' ) ? '#3333331f' : '';
     const identifyLine = ( type === 'add' ) ? '2px solid #ff6000' : '';
-//  cartHeader.style.color = identifyColor;
     searchHeader.style.background = identifySearch;
-    // if (lineHeader)
-    // lineHeader.style.border = identifyLine;
 }
 
 function prepareScrollHeader( scrollPosition ) {
@@ -102,7 +99,7 @@ function keySearchTips( value ) {
     };
     
     CallAjax.send('POST', data,'talk/mvc/core/HandleProposals.php', ( response ) =>  {
-        const dataJson = CallAjax.get( response );
+        const dataJson = CallAjax.get( response, 'off' ).err_mess;
         try {
             renderSearchTips( dataJson );
         } catch ( error ) {

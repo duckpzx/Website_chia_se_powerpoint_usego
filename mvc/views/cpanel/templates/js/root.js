@@ -5,8 +5,6 @@ const loadingWebsite = $('.loadding_website');
 const imagePowerpoints = $$('.poster-product');
 
 const buttons = $$('button');
-
-const btnRules = $('.b-rules');
 const modalInstructTalk = $('.modal-instruct-talk');
 
 // Function editing class
@@ -45,23 +43,27 @@ const Debounces = {
 // Function callAjax
 const CallAjax = {
     // Function handle get response call ajax 
-    get: ( response ) => {
+    get: ( response, status = 'on' ) => {
         try {
             var index = response.indexOf('}{');
             var jsonString = response.substring( index + 1 );
             var dataJson = JSON.parse( jsonString );
-            const error = dataJson.error;
-            if ( error ) {
-                cuteToast({
-                    type: "error",
-                    title: "Lỗi xảy ra",
-                    message: error,
-                    timer: 2500
-                });
-                return false;
-            } else {
-                return dataJson.data;
-            }
+            const code = ( dataJson.code === 0 ) ? 'error' : 'success';
+            const code_title = ( dataJson.code === 0 ) ? 'Lỗi' : 'Thành công';
+            const default_message = ( dataJson.code === 0 ) ? 'Xảy ra lỗi, thử lại sau' : 'Thực hiện thành công';
+            const code_message = ( dataJson.err_mess ) ? dataJson.err_mess : default_message;
+            const err_message = dataJson.err_mess;
+            if ( err_message ) {
+                if ( status === 'on' ) {
+                    cuteToast({
+                        type: code,
+                        title: code_title,
+                        message: code_message,
+                        timer: 3500
+                    });
+                }
+                return dataJson;
+            } 
         } 
         catch( err ) {
             return response;
@@ -174,8 +176,8 @@ const DialogBoxQuestion = {
 
 // Getdata = getattribute 
 const GetDataElement = {
-    get: ( element, option ) => {
-        return element.getAttribute( option );
+    get: ( element, value ) => {
+        return element.getAttribute( value );
     }
 };
 
@@ -201,6 +203,31 @@ const AddClasses = {
     }
 };
 
+const AlertUsego = {
+    identify: ( type ) => {
+        const identifyAction = ( type === 'yes' ) ? 'add' : 'remove';
+        const identifyActionHtml = ( type === 'yes' ) ? 'yes' : 'no';
+
+        TypeClass.class(`${ identifyAction }`, $('.modal-content'), 'show');
+        TypeClass.class(`${ identifyAction }`, $('.modal-overlay'), 'show');
+    
+        // Action identify html class no scroll
+        NoScrollHTML.noScroll(`${ identifyActionHtml }`);
+    },
+
+    show: ( title, content ) => {
+        // Title
+        $('.modal-newfeed-pad .title h4').innerHTML = title;
+        
+        // Content
+        $('.modal-newfeed-pad .newfeed-new-item').innerHTML = content;
+    },
+
+    template: () => {
+        return GetDataElement.get( $('.modal-newfeed-pad'), 'data-template' );
+    }
+};
+
 // Shared Setting root.js 
 const rootJavascript = { 
     handleEvents: () => {
@@ -212,24 +239,6 @@ const rootJavascript = {
             })
 
             buttons.forEach(( btn ) => { btn.onclick = ( e ) => { e.preventDefault() } });
-        
-            if ( btnRules ) {
-                btnRules.addEventListener('click', () => {
-                    TypeClass.class('add', modalInstructTalk, 'active');
-                    TypeClass.class('add', modalOverlay, 'show');
-                    NoScrollHTML.noScroll('yes');
-    
-                    modalOverlay.addEventListener('click', (e) => {
-                        if ( e.target === modalOverlay ) 
-                        {
-                            TypeClass.class('remove', modalInstructTalk, 'active');
-                            // NoScrollHTML.noScroll('no');
-                        }
-                    });
-                });
-            }
-
-            
         });
     }, 
 

@@ -7,7 +7,7 @@ function swiperSettings() {
             clickable: true,
         },
         autoplay: {
-            delay: 4000,
+            delay: 15000,
             disableOnInteraction: false,
         },
         navigation: {
@@ -26,7 +26,7 @@ const btShowContIcons = $('.show-icon-taskbar');
 
 // Storage Status
 function storageHideConIcons() {
-    localStorageCore.storage('hideConIcons_saved', 'true');
+    localStorageCore.storage('hideConIcons-saved', 'true');
 }
 
 function hideConIcons() {
@@ -54,45 +54,54 @@ function handleStorageConIconsLeft() {
     renderShowConIcons( 'yes' );
 }
 
-
 const homeJavascript = {
-    handleEvents: () => {
+    handleEvents() {
         document.addEventListener('DOMContentLoaded', () => {
-            // Start swiper 
-            swiperSettings();
-
-            // Storage eye icon on the left side of the window
-            const onExistStorageConIcons = localStorage.getItem('hideConIcons-saved');
-            if( onExistStorageConIcons ) {
-                handleStorageConIconsLeft();
-            }
-
-            // Hide icon left taskbar 
-            btHideContIcons.onclick = () => hideConIcons();
-
-            // Show icon left taskbar 
-            btShowContIcons.onclick = () => showConIcons('hideConIcons-saved');
-
-            // If new login ( First Login )
-            const overviewFristLogin = $('.overview-first');
-            if ( overviewFristLogin ) 
-            {
-                NoScrollHTML.noScroll('yes');
-
-                const btCloseFirstLogin = $('#btn-start');
-                btCloseFirstLogin.onclick = (e) => 
-                {
-                    e.preventDefault();
-                    overviewFristLogin.hidden = true;
-                    NoScrollHTML.noScroll('no');
-                }
-            }
+            this.initializeSwiper();
+            this.setupStorageIcons();
+            this.setupFirstLogin();
         });
     },
 
-    start: () => {
-        homeJavascript.handleEvents();
+    initializeSwiper() {
+        swiperSettings(); 
+    },
+
+    setupStorageIcons() {
+        const onExistStorageConIcons = localStorage.getItem('hideConIcons-saved');
+        if (onExistStorageConIcons) {
+            handleStorageConIconsLeft();
+        }
+
+        btHideContIcons.onclick = () => this.hideConIcons();
+        btShowContIcons.onclick = () => this.showConIcons('hideConIcons-saved');
+    },
+
+    setupFirstLogin() {
+        const overviewFristLogin = $('.overview-first');
+        if (overviewFristLogin) {
+            NoScrollHTML.noScroll('yes');
+
+            const btCloseFirstLogin = $('#btn-start');
+            btCloseFirstLogin.onclick = (e) => {
+                e.preventDefault();
+                overviewFristLogin.hidden = true;
+                NoScrollHTML.noScroll('no');
+            };
+        }
+    },
+
+    hideConIcons() {
+        hideConIcons();
+    },
+
+    showConIcons(storageKey) {
+        showConIcons(storageKey); 
+    },
+
+    start() {
+        this.handleEvents();
     }
-}
+};
 
 homeJavascript.start();

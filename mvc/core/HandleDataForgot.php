@@ -129,29 +129,26 @@ class actionsTaken extends General {
             {
                 case 'checkemailexists':
                     $this->handle->checkemailexists(); 
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
                     break;
                 
                 case 'sendactivetoken':
                     $this->handle->sendactivetoken();
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
                     break;
     
                 case 'savedforgot':
                     $this->handle->savedforgot();
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
                     break;
             
                 case 'checkforgottoken':
                     $this->handle->checkforgottoken();
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
                     break;
     
                 case 'updatepassword':
                     $this->handle->updatepassword();
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
                     break;
             }
+
+            $this->access->sendJsonResponse( $this->handle->response, $this->handle->error );
         } 
     }
 }

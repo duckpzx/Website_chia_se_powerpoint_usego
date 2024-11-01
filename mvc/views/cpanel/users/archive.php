@@ -1,7 +1,11 @@
 <?php 
-    if(!empty($dataSql['dataArchive'])) :
-    $dataArchive = $dataSql['dataArchive'];
-    endif; // Get data 
+    $dataKeys = ['dataArchive'];
+    
+    foreach ($dataKeys as $key) {
+        if (!empty($dataSql[$key])) {
+            ${$key} = Compact::compactData($dataSql, $key);
+        }
+    }
 ?>
 
 <main>
@@ -23,10 +27,7 @@
                 </h1>
                 <div class="remove-post">
                     <button id="remove">
-                        <svg class="module-svg" xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24">
-                            <path d="m22.242,5.272l-3.515-3.515c-1.133-1.133-2.64-1.757-4.242-1.757h-4.971c-1.602,0-3.109.624-4.243,1.757l-3.515,3.515c-1.133,1.134-1.757,2.641-1.757,4.243v4.971c0,1.602.624,3.109,1.757,4.243l3.515,3.515c1.134,1.133,2.641,1.757,4.243,1.757h4.971c1.603,0,3.109-.624,4.242-1.757l3.515-3.514c1.134-1.133,1.758-2.64,1.758-4.243v-4.971c0-1.603-.624-3.11-1.758-4.243Zm-.242,9.213c0,1.069-.416,2.073-1.172,2.829l-3.515,3.515c-.756.755-1.76,1.171-2.828,1.171h-4.971c-1.068,0-2.073-.416-2.829-1.171l-3.514-3.515c-.756-.756-1.172-1.76-1.172-2.829v-4.971c0-1.068.416-2.073,1.171-2.829l3.515-3.514c.756-.756,1.76-1.172,2.829-1.172h4.971c1.068,0,2.072.416,2.828,1.171l3.515,3.515c.756.755,1.172,1.759,1.172,2.828v4.971Zm-5.561-5.511l-3.043,3.043,3.043,3.043c.391.391.391,1.023,0,1.414-.195.195-.451.293-.707.293s-.512-.098-.707-.293l-3.043-3.043-3.043,3.043c-.195.195-.451.293-.707.293s-.512-.098-.707-.293c-.391-.391-.391-1.023,0-1.414l3.043-3.043-3.043-3.043c-.391-.391-.391-1.023,0-1.414s1.023-.391,1.414,0l3.043,3.043,3.043-3.043c.391-.391,1.023-.391,1.414,0s.391,1.023,0,1.414Z"/>
-                        </svg>
-                        Xóa nội dung
+                        ❌ Xóa nội dung
                     </button>
                 </div>
             </div>
@@ -81,7 +82,7 @@
                         <small>
                         <svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-vubbuv" width="18" height="18" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="ClockIcon"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"></path><path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"></path></svg>
                             <?php if (!empty( $item['timeAt'] )) : ?>
-                                <?php showInfo::dateDiffInMinutes( $item['timeAt'] ) ?>
+                                <?= showInfo::dateDiffInMinutes( $item['timeAt'] ) ?>
                             <?php endif; ?>
                         </small>
                         </p>
@@ -89,6 +90,7 @@
                     <?php endforeach; ?>
                 <?php endif; ?>
                 <section class="add-download">
+                    <svg class="border-style" width='100%' height='100%' xmlns='http://www.w3.org/2000/svg'><rect width='100%' height='100%' fill='none' rx='10' ry='10' stroke='#e8e8e8' stroke-width='3' stroke-dasharray='6.5' stroke-dashoffset='56' stroke-linecap='square'/></svg>
                     <a href="/usego/powerpoint?page=1">
                         <img class="poster"
                         src="<?= _TEMPLATE . 'images/icons/istockphoto-background.jpg' ?>" 
@@ -108,3 +110,4 @@
         </div>
     </div>
 </main>
+

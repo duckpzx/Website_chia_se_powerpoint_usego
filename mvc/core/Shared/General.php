@@ -39,6 +39,11 @@
             }
         }
 
+        public function loadError404() 
+        {
+            require_once("./mvc/errors/404.php");
+            exit(0); 
+        }
 
         // Pagination Functions 
         public function calculateaPagination() 
@@ -58,8 +63,10 @@
         public function totalMaxPage()
         {
             $topicSerarch = $this->getValueParams();
-            $totalNumberRecord = $this->MyModelsOther->getRows(" SELECT * FROM 
-            ug_power_point WHERE title LIKE '%$topicSerarch%' OR tags LIKE '%$topicSerarch%' ");
+            $totalNumberRecord = $this->MyModelsOther->getRows(" 
+            SELECT * 
+            FROM ug_power_point 
+            WHERE title LIKE '%$topicSerarch%' OR tags LIKE '%$topicSerarch%' ");
             $toltalNumberOn1Page = _MAXIMUM_PAGE;
             return ceil( $totalNumberRecord / $toltalNumberOn1Page );
         }
@@ -85,8 +92,8 @@
                 if ( $type === 'top' ) 
                 {
                     $idPost = $this->accessGetUserId( 'id' );
-                    return $this->MyModelsCrud->getRaw
-                    (" SELECT ug_users.id, ug_users.firstName, ug_users.lastName, ug_users.avatar,
+                    return $this->MyModelsCrud->getRaw(" 
+                    SELECT ug_users.id, ug_users.firstName, ug_users.lastName, ug_users.avatar, ug_users.ug_type,
                     ug_comment.*, COUNT( ug_respond_comment.id ) AS total_responds
                     FROM ug_users 
                     JOIN ug_comment ON ug_users.id = ug_comment.userId
@@ -104,7 +111,9 @@
                 } 
                 else {
                     $idPost = $this->accessGetUserId( 'id' );
-                    return $this->MyModelsCrud->getRaw(" SELECT * FROM ug_users, ug_comment 
+                    return $this->MyModelsCrud->getRaw(" 
+                    SELECT * 
+                    FROM ug_users, ug_comment 
                     WHERE idPost = '$idPost' AND ug_users.id = ug_comment.userId 
                     ORDER BY 
                     CASE 
@@ -123,7 +132,9 @@
                 $idPost = $this->accessGetUserId( 'id' );
                 // Get id account owner
 
-                return $this->MyModelsCrud->getRaw(" SELECT * FROM ug_users, ug_respond_comment 
+                return $this->MyModelsCrud->getRaw(" 
+                SELECT * 
+                FROM ug_users, ug_respond_comment 
                 WHERE idPost = '$idPost' AND ug_users.id = ug_respond_comment.userId 
                 ORDER BY ug_respond_comment.createAt ASC ");
             }
@@ -139,20 +150,44 @@
                 {
                     return true;
                 }
+                return false;
             }
         }
 
         // Response send 
-        public function sendJsonResponse( $response, $error )
+        public function sendJsonResponse( $response, $error, $properties = 'err_mess' )
         {
             if (!empty( $response ) || !empty( $error )) 
             {
                 header('Content-Type: application/json');
-                $properties = ( !empty( $error ) ) ? 'error' : 'data';
                 $response = ( !empty( $error ) ) ? $error : $response;
+                $type = ( !empty( $error ) ) ? 'error' : 'success';
+
                 // Action response client 
-                echo json_encode( [ $properties => $response ], JSON_UNESCAPED_UNICODE );
+                $result = [
+                    'code' => (!empty( $error )) ? 0 : 1,
+                    $properties => (!empty( $error )) ? $error : $response
+                ];
+                
+                // Action response client
+                echo json_encode( $result, JSON_UNESCAPED_UNICODE );
                 exit();
             }
+        }
+
+        public function generateCode($prefix = '') {
+            $currentSecond = date('s'); 
+            $currentYear = date('Y');
+
+            $encodedSecond = md5($currentSecond);
+            $encodedYear = md5($currentYear);
+       
+            $transactionId = substr(md5(uniqid($encodedSecond . $encodedYear)), 0, 15);
+        
+            if ($prefix) {
+                $transactionId = $prefix . $this->accessUserId() . substr($transactionId, 0, 15 - strlen($prefix));
+            }
+        
+            return strtoupper($transactionId); 
         }
     }

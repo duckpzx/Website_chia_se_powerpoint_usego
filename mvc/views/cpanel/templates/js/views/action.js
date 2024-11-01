@@ -7,6 +7,8 @@ const modalQr = $('#modal-qr');
 const btnConfirmQr = $('#btn-confirm-qr');
 const btnCancelQr = $('#btn-cancel-qr');
 
+const btnHide = $('#btn-hide');
+
 function removeAction() {
     const currentURL = new URL(window.location.href);
     const idValue  = currentURL.searchParams.get('id');
@@ -15,7 +17,7 @@ function removeAction() {
         'class': 'removeaction'
     };
 
-    CallAjax.send('POST', data, 'talk/mvc/core/HandleActionInteract.php', function (response) {
+    CallAjax.send('POST', data, 'mvc/core/HandleActionInteract.php', function (response) {
         const dataJson = CallAjax.get( response );
         try {
             if (dataJson.error) {
@@ -39,7 +41,7 @@ function confirmAction( userId ) {
         'userId': userId
     };
 
-    CallAjax.send('POST', data, 'talk/mvc/core/HandleActionInteract.php', function (response) {
+    CallAjax.send('POST', data, 'mvc/core/HandleActionInteract.php', function (response) {
         const dataJson = CallAjax.get( response );
         try {
             if (dataJson.error) {
@@ -57,112 +59,155 @@ function confirmAction( userId ) {
     });
 }
 
-function handleQR(money_agrees, token) {
-    const stk = '0396605617';
-    const name = 'PHAM XUAN DUC';
-    const bank = 'mb';
-    const moneyAgrees = money_agrees;
-    const tokenTrade = token;
-    const urlQr = `https://qr.ecaptcha.vn/api/generate/${bank}/${stk}/${name}?amount=${moneyAgrees}&memo=${tokenTrade}&is_mask=0&bg=6`;
-    if (urlQr)
-    $('#modal-qr img').src = urlQr;
-
-    TypeClass.class('add', modalQr, 'active');       
-    NoScrollHTML.noScroll('yes');
-}
-
-function handlePayment(token, money) {
+function acceptService(id) {
     const data = {
-        'token_trade': token,
-        'money_agrees': money,
-        'class': 'handlepayment'
+        'id' : id,
+        'class' : 'AcceptService'
     };
 
-    CallAjax.send('POST', data, 'talk/mvc/core/bin/ImapEmail.php', function (response) {
+    CallAjax.send('POST', data, 'mvc/core/HandleService.php', function (response) {
         try {
-            const responseObject = JSON.parse(response);
-            const status = responseObject.data.status;
-            const type = ( status === 'success' ) ? 'success' : 'error' ;
-            const title = ( status === 'success' ) ? 'Thành công' : 'Lỗi';
-            cuteToast({
-                type: type,
-                title: title,
-                message: responseObject.data.message,
-                timer: 3500
-            });
-            if ( status === 'success' )
-            removeService.hidden = true;
+            CallAjax.get( response, 'off' );
         } 
         catch (error) {};
-    });   
+    }); 
 }
 
-const actionJavascript = {
-    handleEvents: () => {
-        document.addEventListener('DOMContentLoaded', () => {
-            removeService.addEventListener('click', ( e ) => {
-                cuteAlert({
-                    type: "question",
-                    title: "Xác nhận yêu cầu",
-                    message: "Bạn có chắc muốn xóa bài đăng",
-                    confirmText: "Xác nhận",
-                    cancelText: "Hủy bỏ"
-                }).then((e)=>{
-                    if (e == "confirm") {
-                        removeAction();
-                    } 
-                });
-            });
+async function handlePayment(trade) {
+    const data = {
+        'id_service': trade.id,
+        'money_agrees': trade.money_agrees,
+        'class': 'AcceptPayment'
+    };
 
-            let money_agrees = 0;
-            const tokenTrade = $('#token-trade').textContent;
-            btnActionConfirms.forEach(function(button) {
-                button.addEventListener('click', function() {
-                    const row = this.closest('tr');
-                    const rowData = Array.from(row.querySelectorAll('td')).map(td => td.textContent.trim());
-                        cuteAlert({
-                        type: "question",
-                        title: "Xác nhận yêu cầu",
-                        message: "Sau khi thanh toán hãy ở lại chờ 10s",
-                        confirmText: "Xác nhận",
-                        cancelText: "Hủy bỏ"
-                    }).then((e)=>{
-                        if (e == "confirm") {
-                            const moneyAgrees = rowData[3].replace(/[^0-9,.]/g, '');
-                            handleQR(moneyAgrees, tokenTrade);
-
-                            money_agrees = moneyAgrees;
-                            // const userId = GetDataElement.get( btn, 'data-id' );
-                            // confirmAction( userId );
-                        } 
-                    });
-                });
-            });
-
-            btnCancelQr.addEventListener('click', () => {
-                TypeClass.class('remove', modalQr, 'active');       
-                NoScrollHTML.noScroll('no');
-            });
-            
-            let paymentTimeout = null;
-            btnConfirmQr.addEventListener('click', () => {
-                if ( paymentTimeout === null ) {
-                    paymentTimeout = setTimeout(() => {
-                        handlePayment( tokenTrade, money_agrees );
-                        paymentTimeout = null; 
-                    }, 10000);
-                }
-                TypeClass.class('remove', modalQr, 'active');  
-                NoScrollHTML.noScroll('yes');
-            });
-
-            
+    return new Promise((resolve, reject) => {
+        CallAjax.send('POST', data, 'mvc/core/HandleWallet.php', function (response) {
+            try {
+                const dataJson = CallAjax.get(response);
+                resolve(dataJson.code === 1); 
+            } 
+            catch (error) {
+                console.log(error);
+                reject(error);
+            }
         });
-    },
+    });
+}
 
-    start: () => {
-        actionJavascript.handleEvents();
+async function handleTransaction(id_post, id_service) {
+    try {
+        const data = {
+            'id_post' : id_post,
+            'id_service': id_service,
+            'class' : 'GetDataTrade'
+        };
+    
+        CallAjax.send('POST', data, 'mvc/core/HandleInstruct.php', async function (response) { // Chuyển sang hàm bất đồng bộ
+            try {
+                const dataJson = CallAjax.get(response, 'off').err_mess[0];
+                const result = await handlePayment(dataJson);
+           
+                if (result) {
+                    acceptService(dataJson.id); 
+                }
+            } 
+            catch (error) {
+                console.error('Lỗi khi xử lý dữ liệu:', error);
+            }
+        }); 
+    } catch (error) {
+        console.error('Lỗi:', error);
     }
 }
 
+function handleDisplayMode() {
+    const idPost = GetCurrentPageOnURL.get('id');
+    const data = {
+        'id' : idPost,
+        'class' : 'DisplayMode'
+    };
+
+    btnHide.classList.contains('active') 
+    ? TypeClass.class('remove', btnHide, 'active') 
+    : TypeClass.class('add', btnHide, 'active');
+     
+    CallAjax.send('POST', data, 'mvc/core/HandleInstruct.php', async function (response) { 
+        try {
+            CallAjax.get(response);
+        } 
+        catch (error) {
+            console.error('Lỗi khi xử lý dữ liệu:', error);
+        }
+    }); 
+}
+
+const actionJavascript = {
+    handleEvents() {
+        document.addEventListener('DOMContentLoaded', () => {
+            this.setupRemoveService();
+            this.setupActionConfirms();
+            this.setupQrCancelButton();
+            this.setupDisplayMode();
+        });
+    },
+
+    setupRemoveService() {
+        if (removeService) {
+            removeService.addEventListener('click', (e) => {
+                cuteAlert({
+                    type: "question",
+                    title: "Xác nhận yêu cầu",
+                    message: "Bạn sẽ cần thanh toán trước",
+                    confirmText: "Xác nhận",
+                    cancelText: "Hủy bỏ"
+                }).then((response) => {
+                    if (response === "confirm") {
+                        this.removeAction();
+                    }
+                });
+            });
+        }
+    },
+
+    setupActionConfirms() {
+        const tokenTrade = $('#token-trade').textContent;
+        btnActionConfirms.forEach(button => {
+            button.addEventListener('click', () => {
+                const rows = button.closest('tr');
+                cuteAlert({
+                    type: "question",
+                    title: "Xác nhận yêu cầu",
+                    message: "Xác nhận chọn người dùng này",
+                    confirmText: "Xác nhận",
+                    cancelText: "Hủy bỏ"
+                }).then((response) => {
+                    if (response === "confirm") {
+                        const id_service = GetDataElement.get(rows.querySelectorAll('td')[0], 'data-id');
+                        const id_post = GetCurrentPageOnURL.get('id');
+                        handleTransaction(id_post, id_service);
+                    }
+                });
+            });
+        });
+    },
+
+    setupQrCancelButton() {
+        btnCancelQr.addEventListener('click', () => {
+            TypeClass.class('remove', modalQr, 'active');
+            NoScrollHTML.noScroll('no');
+        });
+    },
+
+    setupDisplayMode() {
+        btnHide.addEventListener('click', () => {
+            handleDisplayMode();
+        });
+    },
+
+    start() {
+        this.handleEvents();
+    }
+};
+
+// Khởi chạy script
 actionJavascript.start();

@@ -1,5 +1,13 @@
 <?php
 
+    define('_IMAP_HOST_NAME', '{imap.gmail.com:993/imap/ssl}INBOX');
+    define('_IMAP_USER_NAME', 'ducpham2004nha@gmail.com');
+    define('_IMAP_PASS_WORD', 'oclezgkegttyuits');
+
+    define('_TRADE_FULL_NAME', 'PHAM XUAN DUC');
+    define('_TRADE_NAME_BANK', 'Mb');
+    define('_TRADE_NUMBER_BANK', '0396605617');
+
 class EmailChecker {
     private $hostname;
     private $username;
@@ -31,8 +39,8 @@ class EmailChecker {
     public function checkEmails()
     {
         $emails = $this->searchEmails();
-        $tokenTrade = $_POST['token_trade'];
-        $moneyAgrees = floatval(str_replace(',', '', $_POST['money_agrees'])) . "000";
+        $tokenTrade = $_POST['code_trade'];
+        $moneyAgrees = floatval(str_replace(',', '', $_POST['code_trade'])) . "000";
     
         if ($emails) {
             foreach ($emails as $email_number) {
@@ -44,6 +52,7 @@ class EmailChecker {
                 
                 $clean_body = quoted_printable_decode($body);
                 $clean_body = html_entity_decode($clean_body, ENT_QUOTES, 'UTF-8');
+
                 $clean_body = strip_tags($clean_body);
     
                 if (strpos($clean_body, $tokenTrade) !== false) {
@@ -51,45 +60,39 @@ class EmailChecker {
                     {
                         $recipient_name = trim($recipient_matches[1]);
                         $recipient_account = trim($recipient_matches[2]);
-                        if ($recipient_name === 'PHAM XUAN DUC' 
-                        && $recipient_account === '0396605617')
+                        if ($recipient_name === _TRADE_FULL_NAME 
+                        && $recipient_account === _TRADE_NUMBER_BANK)
                     
                         if (preg_match('/Số\s+tiền\s+giao\s+dịch\s+.*?\(VND\)\s+([0-9,.]+)/', $clean_body, $matches)) {
-                            $transaction_amount = floatval(str_replace(',', '', $matches[1])); 
+                            $transaction_amount = floatval(str_replace(',', '.', $matches[1])); 
         
                             if ($transaction_amount >= $moneyAgrees) {
                                 $this->result = [
-                                    'status' => 'success',
-                                    'message' => 'Số tiền giao dịch hợp lệ',
-                                    'transaction_amount' => $transaction_amount
+                                    'code' => 1,
+                                    'message' => 'Thực hiện giao dịch thành công',
                                 ];
 
                             } else {
                                 $this->result = [
-                                    'status' => 'failed',
+                                    'code' => 0,
                                     'message' => 'Số tiền giao dịch không đủ',
-                                    'transaction_amount' => $transaction_amount
                                 ];
                             }
                         } else {
-                            $this->result = ['status' => 'failed', 'message' => 'Không tìm thấy thông tin số tiền trong email'];
+                            $this->result = ['code' => 0, 'message' => 'Không có thông tin khớp với giao dịch'];
                         }
                     }
                     imap_setflag_full($this->inbox, $email_number, '\\Seen');
 
-                    return; 
+                    return;  
                 }
             }
-            $this->result = ['status' => 'failed', 'message' => 'Không có email khớp với token giao dịch'];
+            $this->result = ['code' => 0, 'message' => 'Không có thông tin khớp với giao dịch'];
         } else {
-            $this->result = ['message' => 'Không có email nào từ mbebanking@mbbank.com.vn kể từ ngày hôm nay'];
+            $this->result = ['code' => 0, 'message' => 'Không có thông tin khớp với giao dịch'];
         }
     }
 
-    public function checkTransaction()
-    {
-        
-    }
 
     public function closeConnection()
     {

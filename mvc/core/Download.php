@@ -1,52 +1,21 @@
 <?php 
+    require_once (__DIR__  . "/Shared/General.php"); 
+    require_once (__DIR__  . "/Request.php");
+
 class Download extends Controller {
-    private $method, $data, $error;
-    private $MyModelsCrud;
-    private $userId, $idPost, $file;
-    public $response = [];
+    private $idPost, $userId, $file;
+    private $data;
+    
+    public $error, $response;
+    private $access;
+  
     public function __construct()
     {
-        $this->MyModelsCrud = $this->models('MyModelsCrud');
-        $this->authenticAction();
-    }
-    
-    private static function statusLogin() {
-        $check = new isLogin();
-        return $check->checkLogin();
-        // Output Id user Login 
+        $this->access = new General;
+        $this->userId = $this->access->accessUserId();
     }
 
-    public function sendJsonResponse()
-    {
-        if (!empty( $this->response) || !empty( $this->error )) 
-        {
-            header('Content-Type: application/json');
-            $properties = ( !empty( $this->error ) ) ? 'error' : 'data';
-            $response = ( !empty( $this->error ) ) ? $this->error : $this->response;
-            // Action response client 
-            echo json_encode( [ $properties => $response ], JSON_UNESCAPED_UNICODE );
-            exit();
-        }
-    }
-
-    public function authenticAction()
-    {
-        if (!empty( $_POST['class'] ))
-        {
-            $this->method = $_POST['class'];
-            switch ( $this->method )
-            {
-                case 'download':
-                    $this->actionDownload();
-                    $this->sendJsonResponse();
-                    break;
-
-                default: break;
-            }
-        }
-    } 
-
-    private function actionDownload() 
+    public function actionDownload() 
     {
         if ( !empty( $_POST['id'] ) && !empty ( $_POST['file'] ) ) 
         {
@@ -61,7 +30,7 @@ class Download extends Controller {
                 // Save your downloads
                 $this->savePostHistory();
 
-                $this->response = array( 'base64Data' => $base64Data );
+                $this->response = [ 'base64Data' => $base64Data ];
             } else {
                 $this->error =  'Tệp không tồn tại.';
             }
@@ -73,10 +42,8 @@ class Download extends Controller {
     // save the article to your download history 
     private function savePostHistory() 
     {
-        if(!empty( Download::statusLogin()['userId'] )) 
+        if(!empty( $this->userId )) 
         {
-            $this->userId = Download::statusLogin()['userId'];
-        
             $this->data = [
                 'userId' => $this->userId,
                 'idPost' => $this->idPost,
@@ -84,10 +51,39 @@ class Download extends Controller {
             ];
 
             date_default_timezone_set('Asia/Ho_Chi_Minh');
-            $this->MyModelsCrud->insert('ug_archive', $this->data);
+            $this->access->MyModelsCrud->insert('ug_archive', $this->data);
         }
     }
 
 }
 
-$handle = new Download();
+class definesDownloadAction extends General {
+    private $handle; 
+    private $method;
+    private $access;
+
+    public function __construct() 
+    {
+        $this->access = new General;
+        $this->handle = new Download();
+        $this->performDetermination();
+    }
+
+    public function performDetermination()
+    {
+        if ( $this->access->attributeEmpty( ['class'] ) )
+        { 
+            $this->method = $_POST['class'];
+
+            switch ( $this->method )
+            {
+                case 'download':
+                    $this->handle->actionDownload();
+                    $this->access->sendJsonResponse( $this->handle->response, $this->handle->error );
+                    break;
+            }
+        }
+    }
+}
+
+$handle = new definesDownloadAction();

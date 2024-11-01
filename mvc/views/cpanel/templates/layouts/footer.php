@@ -1,11 +1,3 @@
-<?php require_once ("handle/footer.getData.php") ?>
-<?php 
-    // Get Data Top Keywords
-    $showInfo = new showDataFooter(); 
-    if(!empty( $showInfo->getAlertHot() )) :
-    $dataAlertHot = $showInfo->getAlertHot();
-    endif;
-?>
 <footer>
     <div class="container-footer">
             <div class="footer">
@@ -132,99 +124,61 @@
     </div>
     <!-- Newfeed -->
     <div class="modal-content">
-        <div class="modal-newfeed-pad">
+        <div class="modal-newfeed-pad" data-template="<?= _TEMPLATE ?>">
             <header>
                 <div class="title">
-                    <h4>Usego - Tin mới</h4>
+                    <h4></h4>
                 </div>
                 <button class="close-new-feed">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </header>
-            <?php if (!empty( $dataAlertHot )) : ?>
-                <?php foreach( $dataAlertHot as $item ) : ?>
-                <div class="newfeed-new-item">
-                    <div class="newfeed-content">
-                        <div class="hastag-newfeed">
-                            <span><span style="color: var(--main)">#</span> <?php if (!empty( $item['title'] )) echo $item['title']; ?></span>
-                        </div>
-                        <div class="describe-newfeed">
-                            <span>
-                            <?php if (!empty( $item['content'] )) echo $item['content']; ?>
-                            </span>
-                        </div>
-                        <div class="poster-newfeed">
-                            <a href="#">
-                                <?php if (!empty( $item['image'] )) : ?>
-                                    <img class="poster" src="" width="400">
-                                <?php endif; ?>
-                            </a>
-                        </div>
-                    </div>
-                    <footer>
-                        <div class="auth-infomation">
-                            <span>Đăng bởi</span>
-                            <a href="#">
-                                <strong>
-                                    <p><?= showInfo::setFullName($item, 'no_key'); ?></p> 
-                                    <i class="fa-solid fa-check"></i>
-                                </strong>
-                            </a>
-                            <i class="dot">·</i>
-                            <span>
-                                <?php if (!empty( $item['createAt'] )) : ?>
-                                    <?php showInfo::dateDiffInMinutes( $item['createAt'] ) ?>
-                                <?php endif; ?>
-                            </span>
-                        </div>
-                    </footer>
-                </div>
-                <?php endforeach; ?>
-            <?php endif; ?>
+            <div class="newfeed-new-item">
+                
+            </div>
         </div>
     </div>
     <div class="modal-overlay"></div>
-    <div class="dialog-box">
-        <div class="content-box">
-            <div class="title-box"></div>
-            <div class="des-box"></div>
-        </div>
-        <div class="button-box">
-            <button id="btn-accpect-box">Đồng ý</button>
-            <button id="btn-cancel-box">Hủy bỏ</button>
-        </div>
-    </div>
-    <!-- File Javascript -->
-    <script src="<?= _TEMPLATE . 'js/root.js' ?>"></script>
-    <script src="<?= _TEMPLATE . 'js/layouts/header.js' ?>"></script>
-    <script src="<?= _TEMPLATE . 'js/layouts/footer.js' ?>"></script>
-    <?php if( !empty( $dataUsego['editor'] ) ) : ?>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.0.6/js/froala_editor.pkgd.min.js" integrity="sha512-BxHHbAsRj+g+qXQHsHQr+4PCppQuM1bt9MPLVRBrkILyIesbKD48O+vX8dt6r5R9x0roCnJzU/LFmqS4q/Tqgw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <?php endif; ?>
-    <?php if( !empty( $dataUsego['comment'] ) ) : ?>
-    <script src="<?= _TEMPLATE ?>"></script>
-    <?php endif; ?>
-    <?php if( !empty( $dataUsego['swiper'] ) ) : ?>
-    <script src="<?= _TEMPLATE . 'libary/swiper/node_modules/swiper/swiper-bundle.min.js' ?>"></script>
-    <?php endif; ?>
-    <?php if (!empty( $dataUsego['js'] )): ?>
-        <?php if (is_array( $dataUsego['js'] )): ?>
-            <?php foreach ( $dataUsego['js'] as $item ): ?>
-                <script src="<?= _TEMPLATE . 'js/' . $item . '.js' ?>"></script>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <script src="<?= _TEMPLATE . 'js/views/' . $dataUsego['js'] . '.js' ?>"></script>
-        <?php endif; ?>
-    <?php endif; ?>
-    <?php if (!empty( $dataUsego['_lite']['_js'] )): ?>
-        <script src="<?= _TEMPLATE . 'js/views/' . $dataUsego['_lite']['_js'] . '.js' ?>"></script>
-    <?php endif; ?>
-    <script src="<?= _TEMPLATE . 'libary/node_modules/lazysizes/lazysizes.min.js' ?>"></script>
-    <script src="<?= _TEMPLATE ?>libary/cute-alert/cute-alert.js"></script>
-    <script src="<?= _TEMPLATE . 'libary/xdialog/xdialog.js' ?>"></script>
-    <?php if( !empty( $dataUsego['jszip'] ) ) : ?>
-    <script src="<?= _TEMPLATE ?>libary/zip/node_modules/jszip/dist/jszip.min.js"></script>
-    <?php endif; ?>
+<script src="<?= _TEMPLATE . 'js/root.js?v=' . time(); ?>"></script>
+<script src="<?= _TEMPLATE . 'js/layouts/header.js?v=' . time(); ?>"></script>
+<script src="<?= _TEMPLATE . 'js/layouts/footer.js?v=' . time(); ?>"></script>
+<?php if (!empty($dataUsego['editor'])): ?>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.0.6/js/froala_editor.pkgd.min.js" integrity="sha512-BxHHbAsRj+g+qXQHsHQr+4PCppQuM1bt9MPLVRBrkILyIesbKD48O+vX8dt6r5R9x0roCnJzU/LFmqS4q/Tqgw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<?php endif; ?>
+<?php if (!empty($dataUsego['comment'])): ?>
+<script src="<?= _TEMPLATE ?>"></script>
+<?php endif; ?>
+<?php if (!empty($dataUsego['swiper'])): ?>
+<script src="<?= _TEMPLATE . 'libary/swiper/node_modules/swiper/swiper-bundle.min.js' ?>"></script>
+<?php endif; ?>
+<?php 
+function loadJs($dataUsego, $template) {
+    $jsFiles = [
+        'js' => !empty($dataUsego['js']) ? $dataUsego['js'] : null,
+        '_lite' => !empty($dataUsego['_lite']['_js']) ? $dataUsego['_lite']['_js'] : null,
+        'jszip' => !empty($dataUsego['jszip']) ? true : false
+    ];
+
+    foreach ($jsFiles as $key => $file) {
+        if ($key === 'js' && is_array($file)) {
+            foreach ($file as $item) {
+                echo '<script src="' . $template . 'js/' . $item . '.js?v=' . time() . '"></script>';
+            }
+        } elseif ($key === 'js' && !is_array($file)) {
+            echo '<script src="' . $template . 'js/views/' . $file . '.js?v=' . time() . '"></script>';
+        } elseif ($key === '_lite' && $file) {
+            echo '<script src="' . $template . 'js/views/' . $file . '.js?v=' . time() . '"></script>';
+        } elseif ($key === 'jszip' && $file) {
+            echo '<script src="' . $template . 'libary/zip/node_modules/jszip/dist/jszip.min.js"></script>';
+        }
+    }
+}
+
+loadJs($dataUsego, _TEMPLATE); 
+?>
+<script src="<?= _TEMPLATE . 'libary/node_modules/lazysizes/lazysizes.min.js' ?>"></script>
+<script src="<?= _TEMPLATE ?>libary/cute-alert/cute-alert.js"></script>
+<script src="<?= _TEMPLATE . 'libary/xdialog/xdialog.js' ?>"></script>
 </footer>
 </body>
 </html>

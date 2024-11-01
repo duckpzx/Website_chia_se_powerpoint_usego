@@ -48,7 +48,7 @@ const searchKeyword = $('input[name="search-keyword"]');
 
 function callAjaxSearchKeyWords( data ) {
     CallAjax.send('POST', data,'talk/mvc/core/HandleProposals.php', function(response) {
-        const dataJson = CallAjax.get( response );
+        const dataJson = CallAjax.get( response, 'off' ).err_mess;
         try { 
             renderBody( dataJson );
         } catch (error) {
@@ -91,41 +91,42 @@ const btnPowerpoint = $('.powerpoint');
 const post = $('.post');
 
 const searchJavascript = {
+    init: () => {
+        document.addEventListener('DOMContentLoaded', searchJavascript.handleEvents);
+    },
+
     handleEvents: () => {
-        document.addEventListener('DOMContentLoaded', () => {
-            // Search on load website 
-            searchOnUrl();
+        searchOnUrl();
 
-            btnFilters?.forEach(( bt ) => {
-                bt.onclick = () => {
-                    ResetClasses.lists( btnFilters, 'filter' );
-                    TypeClass.class('add', bt, 'filter');
-                };
-            })
-
-            searchKeyword?.addEventListener('input', Debounces.listen(( event ) => {
-                var value = event.target.value.trim();
-                ResetClasses.lists( btnFilters, 'filter' );
-                TypeClass.class('add', btnPowerpoint, 'filter');
-
-                const qParam = GetCurrentPageOnURL.get('q');
-                if (!qParam) {
-                    history.pushState(null, null, `?q=`);
-                }
-                
-                if( value !== '' && value.length > 1 ) {
-                    searchOnInput( value );
-                } else {
-                    history.pushState(null, null, `?q=`);
-                    listsBody.innerHTML = '';
-                }
-            }, 300));
+        btnFilters?.forEach(bt => {
+            bt.onclick = () => {
+                ResetClasses.lists(btnFilters, 'filter');
+                TypeClass.class('add', bt, 'filter');
+            };
         });
+
+        searchKeyword?.addEventListener('input', Debounces.listen(searchJavascript.onSearchInput, 300));
+    },
+
+    onSearchInput: (event) => {
+        const value = event.target.value.trim();
+        ResetClasses.lists(btnFilters, 'filter');
+        TypeClass.class('add', btnPowerpoint, 'filter');
+
+        const qParam = GetCurrentPageOnURL.get('q');
+        if (!qParam) history.pushState(null, null, `?q=`);
+
+        if (value.length > 1) {
+            searchOnInput(value);
+        } else {
+            history.pushState(null, null, `?q=`);
+            listsBody.innerHTML = '';
+        }
     },
 
     start: () => {
-        searchJavascript.handleEvents();
+        searchJavascript.init();
     }
-}
+};
 
 searchJavascript.start();

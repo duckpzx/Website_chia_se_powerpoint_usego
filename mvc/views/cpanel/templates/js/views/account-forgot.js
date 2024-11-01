@@ -44,20 +44,20 @@ const isEmpty = {
 }
 
 // Function to check if a string contains only letters
-const isAlphabetic = {
-    check: (inputValue) => {
-        const regex = /^[\p{L}\s']+$/u;
-        return regex.test(inputValue);
-    }
-}
+// const isAlphabetic = {
+//     check: (inputValue) => {
+//         const regex = /^[\p{L}\s']+$/u;
+//         return regex.test(inputValue);
+//     }
+// }
 
 // Function to check if a string meets password criteria
-const isPasswordValid = {
-    check: (inputValue) => {
-        const regex = /^[a-zA-Z0-9]{8,}$/;
-        return regex.test(inputValue);
-    }
-}
+// const isPasswordValid = {
+//     check: (inputValue) => {
+//         const regex = /^[a-zA-Z0-9]{8,}$/;
+//         return regex.test(inputValue);
+//     }
+// }
 
 const isEmailValid = {
     check: (inputValue) => {
@@ -174,7 +174,7 @@ function updatePassword() {
 
     CallAjax.send('POST', dataOtp, 'mvc/core/HandleDataForgot.php', function(response) {
         try {
-            const dataJson = CallAjax.get(response);
+            const dataJson = CallAjax.get(response).err_mess;
             cuteToast({
                 type: "success",
                 title: "Thành công",
@@ -333,9 +333,9 @@ function toSendAccuracyEmail() {
     };
 
     CallAjax.send('POST', toDataSend, 'mvc/core/HandleDataForgot.php', (response) => {
-        const jsonData = CallAjax.get(response);
+        const dataJson = CallAjax.get(response);
         try {
-            if (jsonData.error) 
+            if (dataJson.error) 
                 authenticated = true;
                 emailAlreadyExists();
                 onLoading();
@@ -400,121 +400,132 @@ function checkValueRecaptcha() {
 }
 
 const forgotJavascript = {
-    handleEvents: () => {
-        document.addEventListener('DOMContentLoaded', function() {
-            if(sessionStorage.getItem('collectTipShown') !== 'true') {
-                TypeClass.class('add', collectTip, 'show');
-                sessionStorage.setItem('collectTipShown', 'true');
-        
-                setTimeout(() => {
-                    TypeClass.class('remove', collectTip, 'show');
-                }, 4000);
-            }
-
-            for (const fieldName in formElements) {
-                const field = formElements[fieldName];
-                if (field) {
-                    field.addEventListener('blur', () => {
-                        const value = field.value.trim();
-                        const name = field.getAttribute('name');
-                        // Check value object formElements
-                        switch (name) {
-                            case 'emailForgot':
-                                if (isEmpty.check(value)) 
-                                {
-                                    errorMessages[name]['empty'] = contentMessage.emailForgot.empty;
-                                    Messsage.show(field, errorMessages[name]['empty']);
-                                    borderError.create();
-                                } else if (!isEmailValid.check(value)) 
-                                {
-                                    errorMessages[name]['invalid'] = contentMessage.emailForgot.invalid;
-                                    Messsage.show($(`input[name='${name}']`), errorMessages[name]['invalid']);
-                                    borderError.create();
-                                } else 
-                                {
-                                    delete errorMessages[name]['empty'];
-                                    delete errorMessages[name]['invalid'];
-                                    Messsage.remove(field);
-                                    removeBorderError();
-                                }
-                                break;
-            
-                            case 'passwordForgot':
-                                if (isEmpty.check(value)) 
-                                {
-                                    errorMessages[name]['empty'] = contentMessage.passwordForgot.empty;
-                                    Messsage.show(field, errorMessages[name]['empty']);
-                                    borderError.create();
-                                } else if (!isPasswordValid(value)) 
-                                {
-                                    errorMessages[name]['invalid'] = contentMessage.passwordForgot.invalid;
-                                    Messsage.show($(`input[name='${name}']`), errorMessages[name]['invalid']);
-                                    borderError.create();
-                                } else 
-                                {
-                                    delete errorMessages[name]['empty'];
-                                    delete errorMessages[name]['invalid'];
-                                    Messsage.remove(field);
-                                    removeBorderError();
-                                }
-                                break;
-                        }
-                        // Processed after run one 
-                        if (!isEmpty.check(value)) 
-                        {
-                            fieldCompletionStatus[name] = true;
-                        } else {
-                            fieldCompletionStatus[name] = false;
-                        }
-                        formValues[name] = value;
-                    });
-                }
-            };
-        
-            // Forgot Password
-            btnForgotPassword.addEventListener('click', (event) => {
-                event.preventDefault();
-            });
-
-            // Close container forgot password
-            containerForgotPassword.addEventListener('click', function(e) {
-                if(e.target === containerForgotPassword) {
-                    closeContainerForgotPassword();
-                }
-            });
-
-            // Need suggestions
-            btnNeedHelp.addEventListener('click', (e) => showForgotPassword());
-
-            // Check when btnForgotPassword hover 
-            inputEmailForgot.addEventListener('input', () => {
-                debounce(() => {
-                    !authenticated ? checkValueRecaptcha() : !passwordHasBeen ? checkPasswordBefore() : null;
-                }, 100);
-            });
-
-            btnResetForgot.addEventListener('click', (e) => {
-                e.preventDefault();
-                window.location.reload();
-            });
-            
-            btnForgotPassword.addEventListener('click', () => {
-                onLoading();
-                authenticatedOTP ? toSendCodeOtp() : !sendEmailForgotOTP ? toSendAccuracyEmail() : null;
-            });
-
-            btnSubmitForgot.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (hasErrors(errorMessages.passwordForgot)) {
-                    updatePassword();
-                }
-            });
-
+    handleEvents() {
+        document.addEventListener('DOMContentLoaded', () => {
+            this.showCollectTip();
+            this.setupFieldValidation();
+            this.setupEventListeners();
         });
     },
 
-    start: () => {
-        forgotJavascript.handleEvents();
+    showCollectTip() {
+        if (sessionStorage.getItem('collectTipShown') !== 'true') {
+            TypeClass.class('add', collectTip, 'show');
+            sessionStorage.setItem('collectTipShown', 'true');
+            setTimeout(() => {
+                TypeClass.class('remove', collectTip, 'show');
+            }, 4000);
+        }
+    },
+
+    setupFieldValidation() {
+        for (const fieldName in formElements) {
+            const field = formElements[fieldName];
+            if (field) {
+                field.addEventListener('blur', () => this.validateField(field));
+            }
+        }
+    },
+
+    validateField(field) {
+        const value = field.value.trim();
+        const name = field.getAttribute('name');
+
+        switch (name) {
+            case 'emailForgot':
+                this.validateEmail(value, field);
+                break;
+            case 'passwordForgot':
+                this.validatePassword(value, field);
+                break;
+        }
+
+        // Update completion status and form values
+        fieldCompletionStatus[name] = !isEmpty.check(value);
+        formValues[name] = value;
+    },
+
+    validateEmail(value, field) {
+        if (isEmpty.check(value)) {
+            errorMessages['emailForgot']['empty'] = contentMessage.emailForgot.empty;
+            Messsage.show(field, errorMessages['emailForgot']['empty']);
+            borderError.create();
+        } else if (!isEmailValid.check(value)) {
+            errorMessages['emailForgot']['invalid'] = contentMessage.emailForgot.invalid;
+            Messsage.show(field, errorMessages['emailForgot']['invalid']);
+            borderError.create();
+        } else {
+            this.clearError('emailForgot', field);
+        }
+    },
+
+    validatePassword(value, field) {
+        if (isEmpty.check(value)) {
+            errorMessages['passwordForgot']['empty'] = contentMessage.passwordForgot.empty;
+            Messsage.show(field, errorMessages['passwordForgot']['empty']);
+            borderError.create();
+        } else if (!isPasswordValid(value)) {
+            errorMessages['passwordForgot']['invalid'] = contentMessage.passwordForgot.invalid;
+            Messsage.show(field, errorMessages['passwordForgot']['invalid']);
+            borderError.create();
+        } else {
+            this.clearError('passwordForgot', field);
+        }
+    },
+
+    clearError(name, field) {
+        delete errorMessages[name]['empty'];
+        delete errorMessages[name]['invalid'];
+        Messsage.remove(field);
+        removeBorderError();
+    },
+
+    setupEventListeners() {
+        btnForgotPassword.addEventListener('click', (event) => this.handleForgotPassword(event));
+        containerForgotPassword.addEventListener('click', (e) => this.closeContainer(e));
+        btnNeedHelp.addEventListener('click', () => showForgotPassword());
+
+        inputEmailForgot.addEventListener('input', () => {
+            debounce(() => {
+                if (!authenticated) {
+                    checkValueRecaptcha();
+                } else if (!passwordHasBeen) {
+                    checkPasswordBefore();
+                }
+            }, 100);
+        });
+
+        btnResetForgot.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.location.reload();
+        });
+
+        btnForgotPassword.addEventListener('click', () => {
+            onLoading();
+            authenticatedOTP ? toSendCodeOtp() : !sendEmailForgotOTP ? toSendAccuracyEmail() : null;
+        });
+
+        btnSubmitForgot.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (hasErrors(errorMessages.passwordForgot)) {
+                updatePassword();
+            }
+        });
+    },
+
+    handleForgotPassword(event) {
+        event.preventDefault();
+        // Handle forgot password logic here
+    },
+
+    closeContainer(e) {
+        if (e.target === containerForgotPassword) {
+            closeContainerForgotPassword();
+        }
+    },
+
+    start() {
+        this.handleEvents();
     }
 };
 

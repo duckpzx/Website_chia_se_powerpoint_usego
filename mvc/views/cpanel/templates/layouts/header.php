@@ -1,51 +1,52 @@
-<?php require_once ("handle/header.active.php") ?>
-<?php require_once ("handle/header.getData.php") ?>
 <?php 
-    $dataInfoUser = $statusLogin->checkStatusLogin();
+require_once("handle/header.active.php");
+require_once("handle/header.getData.php");
 
-    // Get Data Top Keywords
-    $showInfo = new showInfo(); 
-    if(!empty( $showInfo->getTopKeywords() )) :
-    $dataKeywords = $showInfo->getTopKeywords();
-    endif;
+$dataInfoUser = $statusLogin->checkStatusLogin();
+$showInfo = new showInfo();
+$dataKeywords = !empty($showInfo->getTopKeywords()) ? $showInfo->getTopKeywords() : [];
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-	<meta http-equiv="X-UA-Compatible" content= "IE=edge,chrome=1">
-	<meta name= "viewport" content= "width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta http-equiv="Expires" content="-1">
-	<meta http-equiv="Pragma" content="no-cache">
-	<meta http-equiv="Cache-control" content="no-cache">
-	<meta http-equiv="Cache" content="no-cache">
-	<meta name="renderer" content="webkit">
-	<meta name="format-detection" content="telephone=no">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta name="renderer" content="webkit">
+    <meta name="format-detection" content="telephone=no">
     <meta name="mobile-web-app-capable" content="yes">
-    <link rel="stylesheet" href="<?= _TEMPLATE . 'libary/cute-alert/style.css' ?>" type="text/css" media="all" />
-    <link rel="stylesheet" href="<?= _TEMPLATE . 'libary/xdialog/xdialog.css' ?>" type="text/css" media="all" >
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="<?= _TEMPLATE . 'css/root.css' ?>" type="text/css" media="all" />
-    <link rel="stylesheet" href="<?= _TEMPLATE . 'css/style.css' ?>" type="text/css" media="all" />
-    <link rel="stylesheet" href="<?= _TEMPLATE . 'css/layouts/header.css' ?>" type="text/css" media="all" />
-    <?php if(!empty( $dataUsego['css'] )) : ?>
-    <link rel="stylesheet" href="<?= _TEMPLATE . 'css/views/'. $dataUsego['css'] .'.css' ?>" type="text/css" media="all" />
-    <?php endif; ?>
-    <?php if(!empty( $dataUsego['_lite']['_css'] )) : ?>
-    <link rel="stylesheet" href="<?= _TEMPLATE . 'css/views/'. $dataUsego['_lite']['_css'] .'.css' ?>" type="text/css" media="all" />
-    <?php endif; ?>
-    <link rel="stylesheet" href="<?= _TEMPLATE . 'css/layouts/footer.css' ?>" type="text/css" media="all" />
-    <link rel="shortcut icon" href="<?= _TEMPLATE . 'images/icons/website_logo_usego.png' ?>" type="image/x-icon" />
-    <title><?php if(!empty( $dataUsego['title'] )) echo $dataUsego['title']; else echo '404 - Page Not Found' ?></title>
+    <link rel="shortcut icon" href="<?= _TEMPLATE . 'images/icons/usego-logo.png' ?>" type="image/x-icon" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" type="text/css" media="all" />
+    <?php
+    $cssFiles = [
+        'libary/cute-alert/style.css',
+        'libary/xdialog/xdialog.css',
+        'css/root.css',
+        'css/style.css',
+        'css/layouts/header.css',
+        !empty($dataUsego['css']) ? 'css/views/' . $dataUsego['css'] . '.css' : null,
+        !empty($dataUsego['_lite']['_css']) ? 'css/views/' . $dataUsego['_lite']['_css'] . '.css' : null,
+        'css/layouts/footer.css'
+    ];
+    foreach ($cssFiles as $cssFile) {
+        if ($cssFile) {
+            echo '<link rel="stylesheet" href="' . _TEMPLATE . $cssFile . '?v=' . time() . '" type="text/css" media="all" />';
+        }
+    }
+    ?>
+    <title><?= $dataUsego['title'] ?? '404 - Page Not Found' ?></title>
     <script src="<?= _TEMPLATE ?>libary/dompurify-js/dompurify/dist/purify.js"></script>
-    <?php if(!empty( $dataUsego['swiper'] ) ) : ?>
-    <link rel="stylesheet" href="<?= _TEMPLATE . 'libary/swiper/node_modules/swiper/' . $dataUsego['swiper'] . '.css' ?>">
+    <?php if (!empty($dataUsego['swiper'])): ?>
+        <link rel="stylesheet" href="<?= _TEMPLATE . 'libary/swiper/node_modules/swiper/' . $dataUsego['swiper'] . '.css?v=' . time(); ?>">
     <?php endif; ?>
-    <?php if( !empty( $dataUsego['editor'] ) ) : ?>
-    <link href="https://cdn.jsdelivr.net/npm/froala-editor@latest/css/froala_editor.pkgd.min.css" rel="stylesheet" type="text/css" />
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/froala-editor@latest/js/froala_editor.pkgd.min.js"></script>
+    <?php if (!empty($dataUsego['editor'])): ?>
+        <link href="https://cdn.jsdelivr.net/npm/froala-editor@latest/css/froala_editor.pkgd.min.css" rel="stylesheet" type="text/css" />
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/froala-editor@latest/js/froala_editor.pkgd.min.js"></script>
     <?php endif; ?>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 </head>
 <body>
 <header>
@@ -84,7 +85,7 @@
                             <li>
                                 <a href="/usego/powerpoint/?page=1">
                                     <i class="fa-regular fa-newspaper"></i>
-                                    <span>Tất cả bài viết</span>
+                                    <span>Tất cả</span>
                                     <small>1924 bài viết</small>
                                 </a>
                             </li>
@@ -199,9 +200,20 @@
             </ul>
         </div>
         <div class="header-right">
+            <?php if ( !empty( $dataInfoUser ) ) : ?>
+                <div class="wallet">
+                    <a href="/usego/wallet" 
+                        class="wallet-click">
+                        <span class="interface-coin">
+                            <?= showInfo::formatCoin($dataInfoUser[0]['coin'] ?? 0 ) ?>
+                        </span>
+                        <img src="<?= _TEMPLATE . 'images/icons/coin.png' ?>" width="30">
+                    </a>
+                </div>
+            <?php endif; ?>
             <div class="search">
                 <button class="search-click">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="10" cy="10" r="7"></circle><line x1="21" y1="21" x2="15" y2="15"></line></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="17" height="17" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="10" cy="10" r="7"></circle><line x1="21" y1="21" x2="15" y2="15"></line></svg>
                     <span>Tìm kiếm</span>
                 </button>
                 <div class="content-search">
@@ -265,7 +277,7 @@
                                                 <?php if( $count < 6 ) : ?>
                                                     <i class="fa-solid fa-arrow-trend-up"></i>
                                                 <?php endif; $count++; ?>
-                                                <?= str_ireplace(',', '', $tags); ?>
+                                             <?= str_ireplace(',', '', $tags); ?>
                                             </a>
                                         </li>
                                     <?php endforeach; ?>

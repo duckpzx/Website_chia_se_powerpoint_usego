@@ -1,9 +1,12 @@
 <?php 
     $statusLogin = new showInfo();
     
-    if(!empty( $dataSql['checkType'])) 
-    {
-        $checkUgType = $dataSql['checkType'];
+    $dataKeys = ['checkType'];
+    
+    foreach ($dataKeys as $key) {
+        if (!empty($dataSql[$key])) {
+            ${$key} = Compact::compactData($dataSql, $key);
+        }
     }
 ?>
 <main>
@@ -29,7 +32,7 @@
             <textarea id="editor"></textarea>
             <div class="wrapper flex flex-alicenter">
                 <?php if( $statusLogin->getStatus() ) : ?>
-                    <?php if( $checkUgType[0]['ug_type'] > 0 ) : ?>
+                    <?php if( !empty( $checkUgType ) && $checkUgType[0]['ug_type'] > 0 ) : ?>
                     <div class="type flex">
                         <span> Đăng nên thông báo </span>
                         <input class="tgl tgl-ios" id="new-feed" type="checkbox"/>

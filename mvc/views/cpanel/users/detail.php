@@ -1,33 +1,18 @@
 <?php 
-    if(!empty($dataSql['dataTopic'])) :
-    $dataTopics = $dataSql['dataTopic'];
-    endif; // Get data Action Params 
-    
-    if(!empty($dataSql['dataDetail'])) :
-    $dataDetail = $dataSql['dataDetail'];
-    else :
-    require_once ("./mvc/errors/404.php");
-    // Posts No Exits
-    endif;
-
-    if(!empty($dataSql['totalComments'])) :
-    $totalComments = $dataSql['totalComments'];
-    endif; 
-    // Get Data comments 
-    
-    if(!empty($dataSql['dataRespondComment'])) :
-    $dataRespondComment = $dataSql['dataRespondComment'];
-    endif; 
-    // Get Data Respond comment
-
     $getActionParams = new App();
     $arrayCrumbs = $getActionParams->urlProcess();
 
-    // Check if the user is logged in or not
     $statusLogin = new showInfo();
 
-    // Get user data from session
     $dataInfoUser = $statusLogin->checkStatusLogin();
+
+    $dataKeys = ['dataTopic', 'dataDetail', 'totalComments', 'dataRespondComment'];
+    
+    foreach ($dataKeys as $key) {
+        if (!empty($dataSql[$key])) {
+            ${$key} = Compact::compactData($dataSql, $key);
+        }
+    }
 ?>
 <main>
     <div class="container">
@@ -68,7 +53,7 @@
                 </div>
             </div>
             <div class="post-title">
-                <h4> <?php if (!empty( $dataDetail )) echo showInfo::setInfomation($dataDetail, 'title'); ?> </h4>
+                <h4 id="title-powerpoint"> <?= showInfo::setInfomation($dataDetail, 'title'); ?> </h4>
                 <div class="post-meta-item flex flex-juscenter">
                     <a href="#" class="flex flex-center">
                         <p>4 ngày trước</p>
@@ -197,13 +182,13 @@
                 <section>
                     <div class="page-right-quantity">
                         <span>
-                            <i class="fa-solid fa-eye"></i>
+                            <img src="<?= _TEMPLATE . 'images/icons/view.png' ?>" width="22">
                             <small>
                             <?php if (!empty( $dataDetail[0] ['view'] )) echo $dataDetail[0] ['view']; ?>
                             </small>
                         </span>
                         <span>
-                            <i class="fa-solid fa-cloud-arrow-down"></i>
+                            <img src="<?= _TEMPLATE . 'images/icons/download.png' ?>" width="22">
                             <small>
                                 <?php if (!empty( $dataDetail[0] ['total_archive'] )) echo $dataDetail[0] ['total_archive']; ?>
                             </small>

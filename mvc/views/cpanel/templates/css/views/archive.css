@@ -26,8 +26,8 @@
     background: rgba(51, 51, 51, 0.12);
 }
 
-.wrapper-header .header-right .search .search-click span {
-    color: rgb(3, 3, 3);
+.wrapper-header .header-right span {
+    color: rgb(3, 3, 3) !important;
 }
 
 .header_center #directional li .line {
@@ -37,8 +37,8 @@
 .group-wrapper {
     display: block;
     margin: 0px 35px;
-    padding: 40px 35px;
-    padding-top: 35px;
+    padding: 30px 35px;
+    padding-top: 40px;
     box-sizing: border-box;
 }
 
@@ -50,10 +50,10 @@
 
 #remove {
     display: none;
-    align-items: flex-end;
+    align-items: center;
+    gap: 3px; 
     border-radius: 99px;
-    padding: 8.45px 17px;
-    
+    padding: 8.5px 14px;
     border: none;
     color: #000;
     white-space: nowrap;
@@ -85,8 +85,10 @@
 
 .group-wrapper .group-title h1 strong span {
     font-size: 26px;
-    color: rgb(36, 36, 36);
-    font-weight: bold;
+    font-weight: 500;
+    color: #161616;
+    letter-spacing: 0.1px;
+    -webkit-text-stroke: 1px #0000004d;
 }
 
 .group-wrapper .group-title h1 span {
@@ -144,12 +146,12 @@
 }
 
 .container-body .lists-body section {
+    position: relative;
     overflow: hidden;
     transition: all .1s ease
 }
 
 .container-body .lists-body section a {
-    position: relative;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -161,6 +163,9 @@
     object-fit: cover;
     width: 100%;
     transition: all .2ms ease;
+    padding: 5px;
+    box-sizing: border-box;
+    box-shadow: 0 1px 5px rgb(183 183 183 / 20%);
 }
 
 .container-body .lists-body a .poster.select {
@@ -202,6 +207,13 @@
     margin-bottom: auto;
 }
 
+.container-body .lists-body .add-download .border-style {
+    position: absolute;
+    border-radius: 10px;
+    height: 100%;
+    width: 100%;
+}
+
 .add-download .effect article {
     position: absolute;
     display: flex;
@@ -237,18 +249,13 @@
     cursor: pointer;
 }
 
-.container-body .lists-body .add-download .poster {
-    border: 3px double #e8e8e8;
-    width: 98%;
-    transition: all .2s ease-in-out
-}
 
-.container-body .lists-body .add-download:hover .poster {
-    border: 3px double var(--main);
+.container-body .lists-body .add-download:hover .border-style {
+
 }
 
 .container-body .lists-body .add-download:hover i {
-    background: var(--main);
+    background-image: linear-gradient(325deg, #ff7734 0, #f59160 55%, #ff7734 90%);
 }
 
 .container-body .lists-body a .poster-effect {
@@ -337,17 +344,16 @@
     border: none;
     letter-spacing: 0.75px;
     border: 1.75px solid;
-    border-color: #EAE8EB;
-    background: var(--white);
+    background: #fff;
+    border: 1px solid #eee;
     outline: none;
     padding-left: 40px;
     transition: all .1s ease
 }
 
 .group-filter .group-title article .group-search input:focus {
-    
-    border-color: #444 !important
-
+    border-color: #dc6a0e;
+    box-shadow: 0 0 0 3px rgb(255 172 110 / 15%), inset 0 0 0 1px var(--main);
 }
 
 .group-filter .group-title article .group-selector {
@@ -361,11 +367,10 @@
 }
 
 .group-filter .group-title article .group-selector button {
-    background: #F9F9FD;
+    background: var(--white);
     color: #000;
     border-radius: 6px;
     padding: 7.75px 17px;
-    
     border: 1px solid #EAE8EB;
     cursor: pointer;
     transition: all .1s ease
@@ -392,16 +397,15 @@
 }
 
 .group-filter .group-title article .group-selector button.filter {
-    background: #EBE8EB;
+    background: #3333331f;
 }
 
 .group-filter .group-title .select {
-    background: var(--main);
+    background-image: linear-gradient(to right, rgb(236 72 72), rgb(239, 68, 68), var(--main));
     border: none;
     padding: 8.45px 17px;
     border-radius: 99px;
     color: var(--white);
-    
     border: 1px solid #EAE8EB;
     cursor: pointer;
     transition: all .1s ease

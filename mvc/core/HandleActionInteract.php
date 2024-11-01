@@ -49,7 +49,8 @@ class HandleActionInteract extends General {
         { 
             if ( $type == 'favourite' ) {
                 $this->userId = $_POST['id'];
-                $this->response = $this->access->MyModelsCrud->getRaw("SELECT *
+                $this->response = $this->access->MyModelsCrud->getRaw("
+                SELECT ug_power_point.*
                 FROM ug_power_point
                 INNER JOIN ug_collection_post ON ug_power_point.id = ug_collection_post.id_onwser
                 WHERE ug_collection_post.userId = '$this->userId'");
@@ -57,8 +58,10 @@ class HandleActionInteract extends General {
             } else {
                 $this->userId = $_POST['id'];
                 $this->response = 
-                $this->access->MyModelsCrud->getRaw("SELECT * FROM ug_power_point 
-                WHERE userID = '$this->userId' ORDER BY id DESC");
+                $this->access->MyModelsCrud->getRaw("
+                SELECT * FROM ug_power_point 
+                WHERE userID = '$this->userId' 
+                ORDER BY id DESC");
             }
         } else {
             $this->error = _on_error;
@@ -94,21 +97,26 @@ class HandleActionInteract extends General {
         if ( $table === 'no' ) 
         { 
             // One This means you only need to get records from one table
-            return $this->access->MyModelsCrud->getRaw("SELECT ug_power_point.*, 
-            latest_archive.maxCreateAt AS timeAt
-            FROM ug_power_point
+            return $this->access->MyModelsCrud->getRaw("
+            SELECT *,
+            ug_power_point.createAt as timeAt
+            FROM ug_power_point as pptx
             INNER JOIN (
-                SELECT idPost, MAX(createAt) AS maxCreateAt
+                SELECT 
+                    idPost, 
+                    MAX(createAt) AS maxCreateAt
                 FROM ug_archive
                 WHERE userId = '$this->userId'
                 GROUP BY idPost
-            ) AS latest_archive
-            ON ug_power_point.id = latest_archive.idPost
-            ORDER BY latest_archive.maxCreateAt DESC; ");
+            ) AS latest_archive ON pptx.id = latest_archive.idPost
+            ORDER BY latest_archive.maxCreateAt DESC;
+            ");
         } 
         else {
             // Find the appropriate record or in a collection
-            return $this->access->MyModelsCrud->getRaw("SELECT *
+            return $this->access->MyModelsCrud->getRaw("
+            SELECT *,
+            ug_power_point.createAt as timeAt
             FROM ug_power_point
             WHERE EXISTS (
                 SELECT id_onwser
@@ -155,8 +163,15 @@ class HandleActionInteract extends General {
         if ( !empty( $_POST['keyword'] ) ) 
         {
             $keyword = $_POST['keyword'];
-            $this->response = $this->access->MyModelsCrud->getRaw("SELECT * FROM ug_power_point 
-            WHERE id IN ( SELECT idPost FROM ug_archive WHERE userId = '$this->userId' ) AND title LIKE '%$keyword%'");
+            $this->response = $this->access->MyModelsCrud->getRaw("
+            SELECT * 
+            FROM 
+                ug_power_point 
+            WHERE 
+                id IN ( SELECT idPost FROM ug_archive 
+                WHERE 
+                    userId = '$this->userId' ) AND 
+                    title LIKE '%$keyword%'");
         }
     }
     
@@ -166,8 +181,13 @@ class HandleActionInteract extends General {
         {
             $this->idOnwser = $_POST['idonswer'];
 
-            $check = $this->access->MyModelsOther->getRows("SELECT * FROM ug_follow 
-            WHERE userId = '$this->userId' AND id_onswer = '$this->idOnwser'");
+            $check = $this->access->MyModelsOther->getRows("
+            SELECT * 
+            FROM 
+                ug_follow 
+            WHERE 
+                userId = '$this->userId' AND 
+                id_onswer = '$this->idOnwser'");
 
             ( $check > 0 ) ? $this->removeFollow() : $this->insertFollow();
         } else 
@@ -358,36 +378,6 @@ class HandleActionInteract extends General {
         }
     }
 
-    // New Feeds 
-    public function newFeeds() 
-    {
-        if ($this->access->attributeEmpty(['title', 'content'])) 
-        {
-            $hot = ""; $topic = "";
-
-            if (!empty( $_POST['hot'] )) { $hot = $_POST['hot']; }
-            if (!empty( $_POST['topic'] )) { $topic = $_POST['topic']; }
-
-            $title = $_POST['title'];
-            $contentBase64 = $_POST['content'];
-            $content = urldecode(base64_decode($contentBase64));
-            
-            $data = [
-                'userId' => $this->access->accessUserId(),
-                'topic' => $topic,
-                'hot' => $hot,
-                'title' => $title,
-                'content' => $content,
-                'createAt' => date('Y-m-d H:i:s')
-            ];
-
-            $query = $this->access->MyModelsCrud->insert('ug_new_feeds', $data);
-            if ($query) 
-                $this->response = 'Đăng tải bài viết thành công';
-            else 
-                $this->error = 'Xảy ra lỗi, thử lại sau!';
-        }
-    }
 
     // Saved view 
     public function savedView() 
@@ -420,44 +410,6 @@ class HandleActionInteract extends General {
         if ( $query > 5 ) 
             $this->error = 'Bạn đang có quá 5 yêu cầu phê duyệt!';
     }
-    
-
-    public function sendService()
-    {
-        if ($this->access->attributeEmpty(['id_trade', 'id_onwser', 'money'])) 
-        {
-            $idTrade = $_POST['id_trade'];
-            $idOnwser = $_POST['id_onwser'];
-            $money = $_POST['money'];
-            $userId = $this->access->accessUserId();
-
-            $check = $this->access->MyModelsOther->getRows("SELECT * FROM ug_service
-            WHERE userId = '$userId' AND id_trade = '$idTrade'");
-
-            if ( !empty( $check ) ) 
-            {
-                $this->error = 'Lỗi, bạn đã gửi yêu cầu trước đó rồi!'; 
-                return false;
-            } 
-
-            $tokenTradePrepare =  $idTrade . $idOnwser . $userId . generateTransactionId('UGO');
-            $tokenTrade = strtoupper($tokenTradePrepare);
-
-            $data = [
-                'id_trade' => $idTrade,
-                'userId' => $userId,
-                'id_onwser' => $idOnwser,
-                'money_agrees' => $money,
-                'status' => 'PD',
-                'token_trade' => $tokenTrade,
-                'createAt' => date('Y-m-d H:i:s')
-            ];
-
-            $query = $this->access->MyModelsCrud->insert("ug_service", $data);
-            if ( !$query )
-                $this->error = 'Lỗi xảy ra, không thể thực hiện!';
-        }
-    }
 
     public function revertService() 
     {
@@ -481,10 +433,23 @@ class HandleActionInteract extends General {
     {
         if ($this->access->attributeEmpty(['id'])) 
         {
-            $idValue = $_POST['id'];
-
-            $query = $this->access->MyModelsCrud->getRaw(" SELECT * 
-            FROM ug_new_feeds WHERE userId = '$idValue' ORDER BY id DESC ");
+            $query = $this->access->MyModelsCrud->getRaw(" 
+            SELECT ug_new_feeds.*,
+                (CASE WHEN ug_new_feeds.topic = 'service' 
+                        THEN (SELECT COUNT(*) 
+                            FROM ug_service 
+                            WHERE ug_new_feeds.id = ug_service.id_trade)
+                        ELSE NULL
+                    END) AS total
+            FROM 
+                ug_new_feeds
+            LEFT JOIN 
+                ug_service ON ug_new_feeds.id = ug_service.id_trade
+            WHERE 
+                ug_new_feeds.userId = '$this->userId'
+            ORDER BY 
+                ug_new_feeds.id DESC;
+            ");
             $this->response = $query;
             if ( empty( $query ) ) {
                 exit(0);
@@ -527,41 +492,6 @@ class HandleActionInteract extends General {
         }
     }
 
-    public function handlePayment()
-    {
-        if ($this->access->attributeEmpty(['token_trade', 'money_agrees']))
-        {
-            $hostname = '{imap.gmail.com:993/imap/ssl}INBOX';
-            $username = 'ducpham2004nha@gmail.com'; 
-            $password = 'oclezgkegttyuits'; 
-
-            $emailChecker = new EmailChecker($hostname, $username, $password);
-            $emailChecker->connect();
-            $emailChecker->checkEmails();
-            $emailChecker->closeConnection();
-            $this->response = $emailChecker->getResult();
-            if ( $this->response ) 
-            {
-                $status = ($this->response['status'] === 'success') ? 'XN' : 'PD';
-
-                $tokenTrade = $_POST['token_trade'];
-                $data = [
-                    'money_received' => $this->response['transaction_amount'],
-                    'status' => $status
-                ];
-                $this->access->MyModelsCrud->update('ug_service', $data,
-                "token_trade = '$tokenTrade'");
-            }
-        }
-    }
-}
-
-function generateTransactionId($prefix = '') {
-    $transactionId = substr(md5(uniqid(rand(), true)), 0, 15);
-    if ($prefix) {
-        $transactionId = $prefix . substr($transactionId, 0, 15 - strlen($prefix) - 1);
-    }
-    return $transactionId;
 }
 
 class definePowerpointAction extends General {
@@ -586,147 +516,110 @@ class definePowerpointAction extends General {
             {
                 case 'ugcollection':
                     $this->handle->actionAuthentication('ug_collection_post');
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
+                    $this->access->sendJsonResponse( $this->handle->response, $this->handle->error );
                     break;
 
                 case 'uglike':
                     $this->handle->actionAuthentication('ug_like_post');
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
+                    $this->access->sendJsonResponse( $this->handle->response, $this->handle->error );
                     break;
 
                 // Get data Favourites 
                 case 'getdatafavourite':
                     $this->handle->getDataProfile( 'favourite' );
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
                     break;
 
                 case 'authorposts':
                     $this->handle->getDataProfile( 'author' );
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
                     break;
                 
                 // handle data Archive
                 case 'removearchive':
                     $this->handle->removeArchive();
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
                     break; 
 
                 case 'newpost':
                     $this->handle->firstDate();
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
                     break;
                     
                 case 'firstdate':
                     $this->handle->firstDate();
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
                     break;
 
                 case 'oldestdate':
                     $this->handle->oldestdate();
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
                     break;
 
                 case 'hascollection':
                     $this->handle->hascollection();
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
                     break;
 
                 case 'haslike':
                     $this->handle->haslike();
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
                     break;
    
                 case 'searcharchive':
                     $this->handle->searcharchive();
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
                     break;
 
                 case 'follower':
                     $this->handle->actionFollow();
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
                     break;
                     
                 case 'comment':
                     $this->handle->interactWithComment('comment');
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
                     break;
 
                 case 'respond':
                     $this->handle->interactWithComment('respond');
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
                     break;
 
                 case 'removecomment':
                     $this->handle->removeComment();
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
                     break;
 
                 case 'pagination':
                     $this->handle->paginationAl();
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
                     break;
 
                 case 'removeprofile':
                     $this->handle->removeProfile();
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
                     break;
 
                 case 'arrangepost':
                     $this->handle->arrangePost();
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
-                    break;
-                
-                // New feeds
-                case 'newfeeds':
-                    $this->handle->newFeeds();
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
                     break;
 
                 // Saved View 
                 case 'savedviewpost':
                     $this->handle->savedView();
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
                     break;
 
                 // Check count service 
                 case 'countservice':
                     $this->handle->countService();
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
                     break;
-
-                case 'sendservice':
-                    $this->handle->sendService();
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
-                    break;  
 
                 case 'revertservice':
                     $this->handle->revertService();
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
                     break;  
                     
-                case 'getdataaction':
+                case 'GetDataAction':
                     $this->handle->getdataAction();
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
                     break;  
 
                 case 'removeaction':
                     $this->handle->removeAction();
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
                     break;   
                     
                     
                 case 'f':
                     $this->handle->confirmAction();
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
-                    break;   
-
-                case 'handlepayment':
-                    $this->handle->handlePayment();
-                    $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
                     break;   
 
                 default: break;
             }
+            $this->access->sendJsonResponse( $this->handle->response, $this->handle->error );
         }
     }
 }

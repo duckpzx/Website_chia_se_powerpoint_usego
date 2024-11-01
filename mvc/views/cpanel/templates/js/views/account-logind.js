@@ -178,11 +178,12 @@ function checkInfomationDatabase() {
     };
 
     CallAjax.send('POST', data, 'mvc/core/HandleDataLogind.php', function(response) {
-        console.log(response);
         try {
-            const dataJson = CallAjax.get(response);
-            offLoading();
-            window.location.href = document.referrer;
+            const dataJson = CallAjax.get( response, 'off' );
+            if ( dataJson.code === 1 ) {
+                offLoading();
+                window.location.href = document.referrer;
+            }
         }
         catch (error) { console.error(error) }
     })

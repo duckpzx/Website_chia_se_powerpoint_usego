@@ -80,9 +80,9 @@ function servicePosts( money ) {
         'id_trade': idValue,
         'id_onwser': id_onwser,
         'money' : money,
-        'class': 'sendservice'
+        'class': 'SendService'
     };
-    CallAjax.send('POST', data, 'talk/mvc/core/HandleActionInteract.php', function (response) {
+    CallAjax.send('POST', data, 'talk/mvc/core/HandleNewFeeds.php', function (response) {
         const dataJson = CallAjax.get( response );
         try {
             if ( dataJson.error ) {
@@ -208,23 +208,68 @@ function handleImageProof( file ) {
     TypeClass.class('add', loadingSs, 'loading');
     const formData = new FormData();
     formData.append('uploaded_file', file);
-    formData.append('class', 'uploadimageproof');
+    formData.append('class', 'UploadImageProof');
     formData.append('id', id);
 
     callAjaxWithFormData('POST', formData, 'mvc/core/HandleDataUpload.php', function (response) {
-        const dataJson = CallAjax.get(response);
+        const dataJson = CallAjax.get(response, 'off').err_mess;
         try {
-            if (!dataJson.error) {
+            if (dataJson) {
                 renderProof( dataJson );
                 $('#detail-proof').hidden = true;
 
                 TypeClass.class('remove', loadingSs, 'loading');
                 // Reset 
                 uploadImagesProof.value = "";
-                descriptionProof.innerHTML = "Vui lòng tải lên 1 File PPTX";
+                descriptionProof.innerHTML = "Vui lòng tải lên 1 File";
             }
         }
         catch (err) { console.error(err) };
+    });
+}
+
+const btnSatisfied = $('#btn-satisfied');
+const btnNotSatisfied = $('#btn-not-satisfied');
+
+function paymentService(json) {
+    const data = {
+        'id': json[0].id,
+        'user_id': json[0].userId,
+        'money_agrees': json[0].money_agrees,
+        'class': 'PaymentService'
+    };
+
+    CallAjax.send('POST', data, 'talk/mvc/core/HandleWallet.php', function (response) {
+        const dataJson = CallAjax.get( response).err_mess;
+    });
+}
+
+function satisfied() {
+    const id = GetCurrentPageOnURL.get('id');
+    const data = {
+        'id' : id,
+        'class': 'Satisfied'
+    };
+
+    CallAjax.send('POST', data, 'talk/mvc/core/HandleInstruct.php', function (response) {
+        const dataJson = CallAjax.get( response, 'off' ).err_mess;
+        try {
+            if (dataJson) {
+                paymentService(dataJson);
+            } 
+        } catch (error) {}
+    });
+}
+
+function notSatisfied() {
+    const id = GetCurrentPageOnURL.get('id');
+    const data = {
+        'id' : id,
+        'class': 'NotSatisfied'
+    };
+
+    CallAjax.send('POST', data, 'talk/mvc/core/HandleInstruct.php', function (response) {
+        CallAjax.get( response );
     });
 }
 
@@ -232,96 +277,128 @@ function handleImageProof( file ) {
 var startTime = new Date();
 
 const readJavascript = {
+    init: () => {
+        document.addEventListener('DOMContentLoaded', readJavascript.handleEvents);
+    },
+
     handleEvents: () => {
-        document.addEventListener('DOMContentLoaded', () => 
-        {
-            window.addEventListener('beforeunload', function () {
-                var endTime = new Date(); 
-                var timeSpent = endTime - startTime; 
-                var timeSpentInSeconds = Math.round(timeSpent / 1000); 
-                // Hanle 
-                if (timeSpentInSeconds > 10) {
-                    // If the time in the page is greater than 10s
-                    savedView();
-                } 
-            });
+        window.addEventListener('beforeunload', readJavascript.handleBeforeUnload);
 
-            btnConfirm?.addEventListener('click', ( event ) => {
-                cuteAlert({
-                    type: "question",
-                    title: "Xác nhận yêu cầu",
-                    message: "Bạn có chắc muốn nhận yêu cầu",
-                    confirmText: "Xác nhận",
-                    cancelText: "Hủy bỏ"
-                }).then((e)=>{
-                    if (e == "confirm") {
-                        const money = inputMoney.value.replace(/[^0-9,.]/g, '');
-                        servicePosts( money );
-                        btnConfirm.hidden = true;
-                        inputMoney.hidden = true;
-                    } 
+        btnConfirm?.addEventListener('click', readJavascript.confirmRequest);
+        btnRevertConfirm?.addEventListener('click', readJavascript.revertService);
+        
+        inputMoney?.addEventListener('input', readJavascript.formatCurrency);
+        
+        readJavascript.setupContentVisibility();
+        readJavascript.setupFileUpload();
+    },
+
+    handleBeforeUnload: () => {
+        const endTime = new Date();
+        const timeSpentInSeconds = Math.round((endTime - startTime) / 1000);
+        if (timeSpentInSeconds > 10) savedView();
+    },
+
+    confirmRequest: () => {
+        cuteAlert({
+            type: "question",
+            title: "Xác nhận yêu cầu",
+            message: "Bạn có chắc muốn nhận yêu cầu",
+            confirmText: "Xác nhận",
+            cancelText: "Hủy bỏ"
+        }).then((e) => {
+            if (e === "confirm") {
+                const money = parseFloat(inputMoney.value.replace(/[\.,]/g, '')); 
+                servicePosts(money);
+                btnConfirm.hidden = true;
+                inputMoney.hidden = true;
+            }
+        });
+    },
+
+    revertService: () => {
+        revertService();
+        btnRevertConfirm.hidden = true;
+    },
+
+    formatCurrency: (e) => {
+        const VND = new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+        });
+
+        let value = e.target.value.replace(/[^0-9]/g, '');
+        inputMoney.value = value ? VND.format(parseFloat(value)).replace('₫', '').trim() : '';
+    },
+
+    setupContentVisibility: () => {
+        const statusContentStorage = localStorageCore.retrieve('hideContent-saved') === idValue;
+        TypeClass.class(statusContentStorage ? 'add' : 'remove', content, 'hidden');
+        identifyEye(statusContentStorage ? 'no' : 'yes');
+
+        btnIconCotnent?.addEventListener('click', () => {
+            const isHidden = content.classList.toggle('hidden');
+            identifyEye(isHidden ? 'no' : 'yes');
+            localStorageCore[isHidden ? 'storage' : 'remove']('hideContent-saved', `${idValue}`);
+        });
+    },
+
+    setupFileUpload: () => {
+        btnProof?.addEventListener('click', () => {
+            const file = uploadImagesProof.files[0];
+            if (!file) {
+                cuteToast({
+                    type: "error",
+                    title: "Lỗi",
+                    message: "Vui lòng chọn 1 File tải lên!",
+                    timer: 3000
                 });
-            });
+                return false;
+            }
+            handleImageProof(file);
+        });
 
-            btnRevertConfirm?.addEventListener('click', ( event) => {
-                revertService();
-                btnRevertConfirm.hidden = true;
-            });
+        btnCancel?.addEventListener('click', () => {
+            uploadImagesProof.value = "";
+            descriptionProof.innerHTML = "Vui lòng tải lên 1 File PPTX";
+        });
 
-            const VND = new Intl.NumberFormat('vi-VN', {
-                style: 'currency',
-                currency: 'VND',
-            });
-        
-            inputMoney?.addEventListener('input', (e) => {
-                let value = e.target.value.replace(/[^0-9]/g, '');
-        
-                if (value) {
-                    value = parseFloat(value);
-                    inputMoney.value = VND.format(value);
-                } else {
-                    inputMoney.value = '';
+        uploadImagesProof?.addEventListener('input', () => {
+            descriptionProof.innerHTML = "Đã tải lên 1 File";
+        });
+
+        btnSatisfied.addEventListener('click', () => {
+            cuteAlert({
+                type: "question",
+                title: "Xác nhận yêu cầu",
+                message: "Bạn hài lòng với dịch vụ",
+                confirmText: "Xác nhận",
+                cancelText: "Hủy bỏ"
+            }).then((response) => {
+                if (response === "confirm") {
+                    satisfied();  
                 }
             });
+        });
 
-            const statusContentStorge = localStorageCore.retrieve('hideContent-saved') === idValue;
-            TypeClass.class(statusContentStorge ? 'add' : 'remove', content, 'hidden');
-            identifyEye(statusContentStorge ? 'no' : 'yes');
-            
-            btnIconCotnent?.addEventListener('click', () => {
-                const isHidden = content.classList.toggle('hidden');
-                identifyEye(isHidden ? 'no' : 'yes');
-                localStorageCore[isHidden ? 'storage' : 'remove']('hideContent-saved', `${ idValue }`);
-            });
-
-            btnProof.addEventListener('click', () => {
-                const file = uploadImagesProof.files[0];
-                if (!file) {
-                    cuteToast({
-                        type: "error",
-                        title: "Lỗi",
-                        message: "Vui lòng chọn 1 File tải lên!",
-                        timer: 3000
-                    });
-                    return false;
-                };
-                handleImageProof( file );
-            });
-
-            btnCancel.addEventListener('click',  () => {
-                uploadImagesProof.value = "";
-                descriptionProof.innerHTML = "Vui lòng tải lên 1 File PPTX";
-            });
-
-            uploadImagesProof.addEventListener('input', () => {
-                descriptionProof.innerHTML = "Đã tải lên 1 File";
+        btnNotSatisfied.addEventListener('click', () => {
+            cuteAlert({
+                type: "question",
+                title: "Xác nhận yêu cầu",
+                message: "Bạn không hài lòng với dịch vụ",
+                confirmText: "Xác nhận",
+                cancelText: "Hủy bỏ"
+            }).then((response) => {
+                if (response === "confirm") {
+                    notSatisfied();
+                }
             });
         });
     },
 
     start: () => {
-        readJavascript.handleEvents();
+        readJavascript.init();
     }
-}
+};
 
 readJavascript.start();

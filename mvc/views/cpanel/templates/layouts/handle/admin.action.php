@@ -1,45 +1,32 @@
 <?php 
-    class Header extends App {
-        public $actionAdmin, $arrayUrl = array();
+class Header extends App {
+    public $actionAdmin;
+    public $arrayUrl = [];
 
-        public function __construct() 
-        {
-            $this->getURL();
-        }
-
-        public function getURL() 
-        {
-            $this->actionAdmin = $this->urlProcess();
-            return $this->actionAdmin;
-        }
-
-        public function pathUrl() 
-        {
-            $arrayUrl = $this->getURL();
-        
-            if (!empty($arrayUrl[1])) 
-            {
-                return $this->actionAdmin = $arrayUrl[1];
-            } 
-            return 'index';
-        }        
+    public function __construct() {
+        $this->actionAdmin = $this->getURL();
     }
-?>
-<?php
-    $action = new Header();
-    $actionUrlPath = $action->pathUrl();
-    // Get current web action
 
-    $sidebarMenu = [
-        [
-            'href' => '/usego/admin/index',
-            'icon' => 'fa-solid fa-house',
-        ],
-        // Login & register
-        [
-            'href' => '/usego/admin/create_product',
-            'icon' => 'fa-solid fa-plus',
-        ],
-        //  Other...
-    ];
+    private function getURL() {
+        return $this->urlProcess();
+    }
 
+    public function pathUrl() {
+        $urlSegment = $this->getURL();
+        return !empty($urlSegment[1]) ? $urlSegment[1] : 'index';
+    }        
+}
+
+$action = new Header();
+$actionUrlPath = $action->pathUrl();
+
+$sidebarMenu = [
+    [
+        'href' => '/usego/admin/index',
+        'icon' => 'fa-solid fa-house',
+    ],
+    [
+        'href' => '/usego/admin/create_product',
+        'icon' => 'fa-solid fa-plus',
+    ],
+];

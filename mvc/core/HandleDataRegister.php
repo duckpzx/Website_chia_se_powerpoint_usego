@@ -1,17 +1,21 @@
 <?php 
-class HandleDataRegister extends Controller {
+class HandleDataRegister extends General {
     private $firstname, $lastname, $email, $password, $token, 
     $active_token, $codeOTP, $status, $createAt;
+
     private $data;
-    private $MyModels, $MyModelsCrud;
-    public $errors = [];
+
+    public $error, $response;
+
+    private $access;
+
     public function __construct()
     {
-        $this->MyModels = $this->models('MyModelsOther');
-        $this->MyModelsCrud = $this->models('MyModelsCrud');
+        $this->access = new General;
+        // $this->userId = $this->access->accessUserId();
     }
 
-    public function checkotp() 
+    public function checkOTP() 
     {
         $emailPrepare = $_POST['email_prepare'];
         $this->codeOTP = $_POST['active_token'];
@@ -21,18 +25,16 @@ class HandleDataRegister extends Controller {
         // Check exists email
         if($query < 1)
         {
-            $this->errors['accuracy'] = 'Xảy ra lỗi, email không tồn tại';
+            $this->error = 'Xảy ra lỗi, email không tồn tại';
             return;
         } else {
             $checkOtp = $this->checkAccuracyOtp($emailPrepare);
             // Check exists code OTP 
             if($checkOtp < 1)
             {
-                $this->errors['accuracy'] = 'Mã xác thực không chính xác';
+                $this->error = 'Mã xác thực không chính xác';
                 return;
-            } else {
-                $this->errors['accuracy'] = NULL;
-            }
+            } 
         }            
     }
 
@@ -48,19 +50,17 @@ class HandleDataRegister extends Controller {
             }
         }
 
-        if ($isTrue) {
+        if ( $isTrue ) {
             // Check exists email 
             $emailAtFirst = $_POST['email'];
             $this->processEmail($emailAtFirst);
             $emailExistence = $this->emailAlreadyExists();
 
-            if($emailExistence > 0)
+            if( $emailExistence > 0 )
             {
-                $this->errors['otp'] = 'Lỗi, email đã tồn tại trên hệ thống';
+                $this->error = 'Lỗi, email đã tồn tại trên hệ thống';
                 return;
-            } else {
-                $this->errors['otp'] = null;
-            }
+            } 
                 
             $encryptedPassword = base64_decode( $_POST ['password'] );
             // decryption password
@@ -119,21 +119,21 @@ class HandleDataRegister extends Controller {
 
     private function checkEmailStripes($emailPrepare)
     {
-        $query = $this->MyModels->getRows("SELECT id FROM ug_users 
+        $query = $this->access->MyModelsOther->getRows("SELECT id FROM ug_users 
         WHERE email = '$emailPrepare'");
         return $query;
     }
 
     private function checkAccuracyOtp($emailPrepare)
     {
-        $checkOtp = $this->MyModels->getRows("SELECT id FROM ug_users 
+        $checkOtp = $this->MyModelsOther->getRows("SELECT id FROM ug_users 
         WHERE email = '$emailPrepare' AND activeToken = '$this->codeOTP'");
         return $checkOtp;
     }
 
     private function emailAlreadyExists() 
     {
-        return $this->MyModels->getRows("SELECT id FROM ug_users 
+        return $this->access->MyModelsOther->getRows("SELECT id FROM ug_users 
         WHERE email = '" . $this->email . "'");
     }
 
@@ -154,54 +154,43 @@ class HandleDataRegister extends Controller {
     }
 }
 
-class determineRegisterAction extends Request {
+
+class definesRegisterAction extends General {
+    private $handle; 
     private $method;
-    private $handler; 
+    private $access;
 
-    public function __construct()
+    public function __construct() 
     {
-        if ($this->isPost()) 
-        {
-            $this->handler = new HandleDataRegister();
-            $this->performDetermination();
-        }
+        $this->access = new General;
+        $this->handle = new HandleDataRegister();
+        $this->performDetermination();
     }
 
-    public function sendJsonResponse()
+    public function performDetermination()
     {
-        header('Content-Type: application/json');
-        if (!empty($this->handler->errors))
-        echo json_encode(['error' => $this->handler->errors], JSON_UNESCAPED_UNICODE);
-        exit;
-    }
+        if ( $this->access->attributeEmpty( ['class'] ) )
+        { 
+            $this->method = $_POST['class'];
 
-    public function performDetermination() 
-    {
-        if(!empty($_POST['class'])) 
-        {
-            $this->method = $this->getBody()['class'];
-        }
-        // Value class 
-
-        switch ($this->method)
-        {
-            // when entering the authentication code
-            case 'checkotp':
-                $this->handler->checkotp(); 
-                $this->sendJsonResponse();
-                break;
-
-            case 'importeddata': 
-                $this->handler->importeddata();
-                $this->sendJsonResponse();
-                break;
-
-            case 'setstatus': 
-                $this->handler->setstatus();
-                $this->sendJsonResponse();
-                break;
+            switch ( $this->method )
+            {
+                case 'checkotp':
+                    $this->handle->checkOTP(); 
+                    break;
+    
+                case 'importeddata': 
+                    $this->handle->importeddata();
+                    break;
+    
+                case 'setstatus': 
+                    $this->handle->setstatus();
+                    break;
+            }
+            
+            $this->handle->sendJsonResponse( $this->handle->response, $this->handle->error );
         }
     }
 }
 
-$handle = new determineRegisterAction();
+$handle = new definesRegisterAction();

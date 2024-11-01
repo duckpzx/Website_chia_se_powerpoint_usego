@@ -1,3 +1,8 @@
+.chart-synthetic {
+    display: flex;
+    gap: 25px;
+}
+
 .dashboard-right .wrapper-top ul {
     display: flex;
     justify-content: space-evenly;
@@ -11,6 +16,8 @@
     align-items: center;
     justify-content: center;
     flex-basis: calc(100% / 6);
+    background: #ffffff7d;
+    backdrop-filter: blur(50px);
     padding: 24px;
     box-sizing: border-box;
     border-radius: 7px;
@@ -23,15 +30,189 @@
 .dashboard-right .wrapper-top ul li .text {
     text-align: center;
     margin: 8px 0px 0px;
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     line-height: 1.75;
-    color: rgb(93, 135, 255);
-    font-weight: 600;
+    color: rgb(53 53 53);
+}
+
+.dashboard-right .wrapper-top ul li .text p {
+    text-transform: capitalize;
+    padding: 2.5px 0;
 }
 
 .dashboard-right .wrapper-top ul li .text span {
     font-size: 1.3125rem;
     line-height: 1.6rem;
-    color: rgb(93, 135, 255);
-    font-weight: 600;
+}
+
+.chart-style {
+    margin-top: 25px;
+    padding: 16px 12px;
+    box-sizing: border-box;
+    border-radius: 8px;
+    background: #ffffff7d;
+    backdrop-filter: blur(50px);
+}
+
+.chart-synthetic .chart-wrapper:nth-child(1) {
+    flex-basis: 65%;
+}
+
+.chart-synthetic .chart-wrapper:nth-child(2) {
+    flex-basis: 35%;
+}
+
+.chart-ratings {
+    display: flex;
+    border-radius: 8px;
+    gap: 25px;
+    background-size: 550%;
+}
+
+.chart-ratings .chart-wrapper:nth-child(1) {
+    width: 35%;
+}
+
+.chart-ratings .chart-wrapper:nth-child(2) {
+    width: 65%;
+}
+
+.chart-ratings .chart-style {
+    position: relative;
+    padding: 15px 20px;
+}
+
+.chart-ratings .chart-style .options {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    color: rgb(55, 61, 63);
+}
+
+.chart-ratings .chart-style .options .left {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    gap: 5px;
+}
+ 
+.chart-ratings .chart-style .options .right {
+    display: flex;
+    gap: 15px;
+}
+
+.chart-ratings .chart-style .options .left span {
+    background: linear-gradient(to left, rgb(251, 113, 133), rgb(217, 70, 239), rgb(99, 102, 241));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.chart-ratings .chart-style .options .right .control input, select {
+    all: unset;
+    font-size: 14.5px;
+    background: #eaedf0;
+    padding: 7.95px 14px;
+    border-radius: 99px;
+}
+
+.chart-ratings .chart-style table {
+    width: 100%;
+    border-collapse: collapse;
+    color: rgb(55, 61, 63);
+    font-size: 14.5px;
+}
+
+.chart-ratings .chart-style table .title th, td {
+    padding: 15px 0;
+    border-bottom: 1.5px solid #eaedf06e;
+    text-align: right;
+    font-weight: 500;
+}
+
+.chart-ratings .chart-style table th:nth-child(1) {
+    text-align: left;
+}
+
+.chart-ratings .chart-style table td {
+    text-align: right
+}
+
+.chart-ratings .chart-style table .title {
+    border-bottom: 2px solid #eaedf06e;
+    background: linear-gradient(to left, rgb(251, 113, 133), rgb(217, 70, 239), rgb(99, 102, 241));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.chart-ratings .chart-style table .info {
+    display: flex;
+    align-items: center;
+    gap: 17.5px;
+}
+
+.chart-ratings .chart-style table .info img {
+    height: 100%;
+    aspect-ratio: 1/1;
+    border-radius: 8px;  
+    box-shadow: 0 0 2px #00000012;
+}
+
+.chart-ratings .chart-style table .info a {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #282828;
+}
+
+.chart-ratings .chart-style table .info svg {
+    transform: translateY(-1px);
+}
+
+/* File */
+
+.chart-ratings .chart-style .preview {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.chart-ratings .chart-style .top {
+    background: linear-gradient(to right, rgb(255 187 0), rgb(246 59 94), rgb(255 124 22));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.chart-ratings .chart-style .lists-pptx ul li a {
+    display: flex;
+    padding: 15px 0;
+    font-size: 14.5px;
+    gap: 15px;
+    border-bottom: 2px solid #eaedf06e;
+}
+
+.chart-ratings .chart-style .lists-pptx ul li a img {
+    aspect-ratio: 1 / 1;
+    border-radius: 8px;
+    box-shadow: 0 0 2px #00000012;
+}
+
+.chart-ratings .chart-style .lists-pptx ul li a {
+    color: #282828; 
+}
+
+.chart-ratings .chart-style .lists-pptx ul li:nth-child(1) a {
+    background: linear-gradient(to top left, #282828, rgb(246 105 59), rgb(255 124 22));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.chart-ratings .chart-style .lists-pptx ul li:nth-child(2) a {
+    background: linear-gradient(to top left, #282828, rgb(255 139 35));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
 }

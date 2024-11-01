@@ -1,39 +1,27 @@
-<?php 
-    if(!empty($dataSql['dataTopic']))
-    {
-        $dataTopics = $dataSql['dataTopic'];
-    } // Getdata Action Params 
-    
-    if(!empty($dataSql['dataPowerpoint'])) 
-    {
-        $dataPowerpoint = $dataSql['dataPowerpoint'];
-    } // Data File Powerpoint 
-
-    if(!empty($dataSql['dataUser'])) 
-    {
-        $dataProfile = Compact::compactData($dataSql, 'dataUser');
-    } // Data user 
-
-    if(!empty($dataSql['dataCountPost'])) 
-    {
-        $dataCountPost = Compact::compactData($dataSql, 'dataCountPost');
-    } // Data count post
-    
+<?php
     $getActionParams = new App();
     $arrayCrumbs = $getActionParams->urlProcess();
 
-    // Get Data Top Keywords
     $showInfo = new showInfo(); 
-    if(!empty( $showInfo->getTopKeywords() )) :
-    $dataKeywords = $showInfo->getTopKeywords();
+        if(!empty( $showInfo->getTopKeywords() )) :
+        $dataKeywords = $showInfo->getTopKeywords();
     endif;
+
+    $dataKeys = ['dataTopic', 'dataPowerpoint', 'dataUser', 'dataCountPost'];
+    
+    foreach ($dataKeys as $key) {
+        if (!empty($dataSql[$key])) {
+            ${$key} = Compact::compactData($dataSql, $key);
+        }
+    }
 ?>
 <main>
     <div class="container">
         <div class="block"></div>
         <div class="post-meta">
             <img class="post-poster"
-                src="<?= _TEMPLATE . 'images/background/list-background.png' ?>"
+                src="<?= _TEMPLATE . 'images/uploads/powerpoint-images/' . showInfo::analysis2Character($dataPowerpoint[0]['images'])[0] ?>"
+                onerror="this.src='<?= _TEMPLATE . 'images/icons/not-image.png'; ?>'"
                 draggable="false">
             <div class="post-poster-before"></div>
             <div class="category-header">
@@ -70,7 +58,8 @@
                 <article class="cont-info flex flex-between">
                     <div class="poster-info">
                         <img 
-                        src="<?= _TEMPLATE . 'images/background/list-background.png' ?>"
+                        src="<?= _TEMPLATE . 'images/uploads/powerpoint-images/' . showInfo::analysis2Character($dataPowerpoint[0]['images'])[0] ?>"
+                        onerror="this.src='<?= _TEMPLATE . 'images/icons/not-image.png'; ?>'"
                         draggable="false">
                     </div>
                     <div class="text-info">

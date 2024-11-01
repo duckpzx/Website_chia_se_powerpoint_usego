@@ -46,8 +46,7 @@ input, textarea {
 /* Flex element */
 
 .button_shaddow {
-    background: var(--main);
-    background: #ff6000;
+    background: linear-gradient(to top, #ff50009e, #ff8900de);
     line-height: 48px;
     padding: 0 72px;
     border: none;
@@ -118,8 +117,8 @@ input, textarea {
 
 .instruct 
 {
+    padding: 20px 10px 20px 20px;
     position: relative;
-    padding: 35px 30px;
 }
 
 .instruct img 
@@ -127,24 +126,45 @@ input, textarea {
     width: 100%;
     border-radius: 10px;
     z-index: -1;
+    margin: 10px 0;
 }
 
 .instruct .text span 
 {
+    font-weight: 500;
     display: block;
     background: #ececec;
-    padding: 10px;
-    border-radius: 9px;
+    padding: 7.5px 10px;
+    margin-right: auto;
     color: #3a3a3a;
     font-size: 15px;
     line-height: 1.6rem;
-    font-family: system-ui;
     z-index: 1;
+}
+
+.instruct .text span:nth-child(odd) {
+    border-radius: 2px 9px 9px 9px;
+}
+
+.instruct .text span:nth-child(even) {
+    border-radius: 9px 9px 9px 2px;
 }
 
 .instruct .text 
 {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     position: relative;
+}
+
+.instruct .text .ins-title 
+{
+    font-weight: 500;
+    background: linear-gradient(to right, #ececec, transparent);
+    border-radius: 9px;
+    margin-right: auto;
+    padding: 7.5px 10px;
 }
 
 .instruct .text span small 
@@ -152,7 +172,6 @@ input, textarea {
     font-size: 15px;
     font-weight: 500;
 }
-
 
 @media (max-width: 767px) 
 {

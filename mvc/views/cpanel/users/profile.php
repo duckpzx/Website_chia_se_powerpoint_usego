@@ -1,21 +1,13 @@
 <?php 
     $statusLogin = new showInfo();  
 
-    if(!empty($dataSql['dataUser'])) :
-    $dataProfile = Compact::compactData($dataSql, 'dataUser');
-    endif; // Data user 
+    $dataKeys = ['dataProfile', 'dataAvatars', 'dataPowerpoints', 'dataCheckFollow'];
     
-    if(!empty($dataSql['dataAvatars'])) :
-    $dataAvatars = Compact::compactData($dataSql, 'dataAvatars');
-    endif; // Data old avatar user 
-
-    if(!empty($dataSql['dataPowerpoints'])) :
-    $dataPowerpoints = Compact::compactData($dataSql, 'dataPowerpoints');
-    endif; // Data old powerpoint user
-    
-    if(!empty($dataSql['dataCheckFollow'])) :
-    $dataCheckFollow = Compact::compactData($dataSql, 'dataCheckFollow');
-    endif; // Check follow
+    foreach ($dataKeys as $key) {
+        if (!empty($dataSql[$key])) {
+            ${$key} = Compact::compactData($dataSql, $key);
+        }
+    }
 ?>
 <main>
     <div class="container">
@@ -35,6 +27,9 @@
                 <h3> Chia sẻ các mẫu thiết kế của bạn </h3>
                 <button class="btn-call" id="btn-user-upload-ppt">
                 <i class="fa-solid fa-circle-up"></i> Đăng tải 
+                </button>
+                <button class="b-rules"> 
+                <i class="fa-solid fa-question" style="color: #FFFFFF;"></i>
                 </button>
             </div>
             <?php endif; ?>
@@ -62,9 +57,14 @@
                             </div>
                         </div>
                         <div class="bottom">
-                            <label for="item-file-ppt">
-                                <span class="btn-item-file-ppt">Tải lên</span>
-                            </label>
+                            <div class="list-item-file-ppt">
+                                <label for="item-file-ppt" class="manual">
+                                    <span class="btn-item-file-ppt">Tải thủ công</span>
+                                </label>
+                                <label for="item-file-ppt" class="automatic">
+                                    <span class="btn-item-file-ppt">Tải tự động</span>
+                                </label>
+                            </div>
                             <form method="POST" enctype="multipart/form-data">
                                 <input 
                                 type="file" 
@@ -86,27 +86,6 @@
                                     <button class="btn-cirlce-x btn-close-x">❌</button>
                                 </section>
                             </article>
-                            <button class="b-rules"> 
-                                <span><i class="fa-solid fa-compass-drafting"></i> Hướng dẫn</span>
-                            </button>
-                            <div class="modal-instruct-talk">
-                                <div class="instruct">
-                                    <div class="text">
-                                        <span class="ins-title">
-                                            Cách để đổi file PPTX thành "Ảnh" 
-                                            <b>Chọn</b> File -> Export -> Change File Type -> <b>Chọn</b> "PNG" hoặc "JPEG" sau đó lưu.
-                                        </span>
-                                    </div>
-                                    <img 
-                                    src="<?= _TEMPLATE . 'images/icons/instruct-profile.png' ?>" 
-                                    width="200">
-                                    <div class="text">
-                                        <span class="ins-content">
-                                            <p> Gợi ý: <small> Thông thường File được lưu vào download</small> </p>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </section>
                 </li>
@@ -119,7 +98,7 @@
                             <section class="wrapper-compressed">
                                 <button class="btn-comeback-upload-image">
                                 <i class='bx bx-chevron-left'></i>
-                                <span>Quay lại</span>
+                                <span>⟲ Quay lại</span>
                                 </button>
                                 <input 
                                 type="file" 
@@ -162,7 +141,7 @@
                 <div class="select-add-content">
                     <button class="btn-comeback-upload-image" id="btn-comback-upload-title">
                         <i class='bx bx-chevron-left'></i>
-                        <span>Quay lại</span>
+                        <span>⟲ Quay lại</span>
                     </button>
                     <section class="title">
                         <input 
@@ -367,7 +346,7 @@
                             <div class="user-join">
                                 <i class='bx bx-message-rounded-dots'></i>
                                 <small>
-                                    Tham gia UseGo.com, 2 tháng trước
+                                    Tham gia UseGo.com, 2 tháng trước ✍
                                 </small>
                             </div>
                             <button class="desk-hidden btn-seemore-des">
@@ -422,7 +401,7 @@
                     <hr class="line-hr">
                 </li>
                 <?php if(showInfoYourSelf::setDateYourSelf($_GET, 'id')) : ?>
-                <li class="btn-collection-action">
+                <li class="btn-collection-feeds">
                     <img src="<?= _TEMPLATE . 'images/icons/action.png' ?>" width="20">
                     <span>Được soạn bởi tác giả</span>
                     <hr class="line-hr">
@@ -520,6 +499,5 @@
                 </div>
             </div>
         <?php endif; ?>
-        <!-- text editor -->
     </div>
 </main>

@@ -46,7 +46,7 @@
     {
         if(!empty($_POST['class']) && $_POST['class'] == "sendemail") 
         {
-            $path = _ROOT_URL . 'mvc/core/content/SendEmail.html';
+            $path = _ROOT_URL . 'mvc/core/content/RegisterEmail.html';
             $contentMessage = file_get_contents($path);
             $contentMessage = str_replace("{{firstname}}", $_POST['firstname'], $contentMessage);
             $contentMessage = str_replace("{{active_token}}", $_POST['active_token'], $contentMessage);

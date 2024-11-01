@@ -10,32 +10,25 @@ function prepareData() {
     const title = inputTitle.value;
     const content = inputEditor.value;
     const encodedContent = btoa((encodeURIComponent(content)));
-
+    
     const data = {
         'title': title,
         'content': encodedContent,
-        'class': 'newfeeds'
+        'images': imageUploads,
+        'class': 'NewFeeds'
     };
-    const identifyHot = "";
-    if (hotNewFeed) {
-        identifyHot = (hotNewFeed.checked) ? "on" : "";
-    } 
+    
+    const identifyHot = (hotNewFeed?.checked) ? "on" : "";
+
     const identifyTopic = (topicPosts[0].checked) ? "post" : "service";
     data.hot = identifyHot;
     data.topic = identifyTopic;
 
-    CallAjax.send('POST', data, 'talk/mvc/core/HandleActionInteract.php', function( response ) {
+    CallAjax.send('POST', data, 'talk/mvc/core/HandleNewFeeds.php', function( response ) {
         try {
-            const jsonData = CallAjax.get(response);
-            cuteToast({
-                type: "success",
-                title: "Thành công",
-                message: jsonData,
-                timer: 3000
-            });
+            CallAjax.get(response);
         } 
         catch(err) { 
-            console.log( err ); 
             cuteToast({
                 type: "error",
                 title: "Lỗi",
@@ -56,22 +49,29 @@ function handleValue( value, minLength ) {
 }
 
 const newpostJavascript = {
-    handleEvents: () => {
+    handleEvents() {
         document.addEventListener('DOMContentLoaded', () => {
-            inputTitle.addEventListener('input', Debounces.listen(( event ) => {
-                const valueTitle = event.target.value;
-                const lengthValue = valueTitle.length;
-                handleValue(lengthValue, 10);
-            }, 300));
-    
-            btSendNewFeed.addEventListener('click', () => {
-                prepareData();
-            });
+            this.initializeEventListeners();
         });
     },
 
-    start: () => {
-        newpostJavascript.handleEvents();
+    initializeEventListeners() {
+        inputTitle.addEventListener('input', this.debounceInputTitle);
+        btSendNewFeed.addEventListener('click', this.handleSendNewFeed);
+    },
+
+    debounceInputTitle: Debounces.listen((event) => {
+        const valueTitle = event.target.value;
+        const lengthValue = valueTitle.length;
+        handleValue(lengthValue, 10);
+    }, 300),
+
+    handleSendNewFeed: () => {
+        prepareData();
+    },
+
+    start() {
+        this.handleEvents();
     }
 };
 

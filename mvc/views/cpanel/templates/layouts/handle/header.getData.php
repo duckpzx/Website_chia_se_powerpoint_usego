@@ -1,13 +1,14 @@
 <?php 
-require_once ("mvc/core/Controller.php");
-
-class showInfo extends Controller {
+class showInfo extends General {
+    private $userId;
     private $status;
     private $MyModels;
+    private $access;
 
     public function __construct() 
     {
-        $this->MyModels = $this->models('MyModelsCrud');
+        $this->access = new General;
+        $this->userId = $this->access->accessUserId();
         $this->checkStatusLogin();
     }
 
@@ -74,9 +75,14 @@ class showInfo extends Controller {
 
     private function getUserId($userId)
     {
-        $query = $this->MyModels->getRaw("SELECT id, firstName, 
-        lastName, email, firstLogin, avatar, describes, ug_type, createAt
-        FROM ug_users WHERE id = '$userId'");
+        $query = $this->access->MyModelsCrud->getRaw("
+        SELECT 
+            id, firstName, lastName, email, coin, firstLogin,
+            avatar, describes, ug_type, createAt
+        FROM 
+            ug_users
+        WHERE 
+            id = '$userId'");
         return $query;
     }
 
@@ -106,52 +112,40 @@ class showInfo extends Controller {
         return $data[0];
     }
 
-    public static function dateDiffInMinutes($dateTimeTwo, $dateTimeOne = null) 
-    {
-        if ($dateTimeOne === null) {
-            $dateTimeOne = date('Y-m-d H:i:s');
-        }
-    
-        $diff = abs(strtotime($dateTimeTwo) - strtotime($dateTimeOne));
-        $minutes = round($diff / 60);
-    
+    public static function dateDiffInMinutes($dateTimeTwo, $dateTimeOne = null) {
+        $dateTimeOne = $dateTimeOne ?? date('Y-m-d H:i:s');
+        $minutes = round(abs(strtotime($dateTimeTwo) - strtotime($dateTimeOne)) / 60);
+
         if ($minutes < 60) {
-            echo $minutes . ' phút trước';
+            return "$minutes phút trước";
+        } elseif ($minutes < 1440) {
+            return round($minutes / 60) . " giờ trước";
+        } elseif ($minutes < 43200) {
+            return floor($minutes / 1440) . " ngày trước";
+        } elseif ($minutes < 518400) {
+            return floor($minutes / 43200) . " tháng trước";
         } else {
-            $hours = round($minutes / 60);
-    
-            if ($hours < 24) {
-                echo $hours . ' giờ trước';
-            } else {
-                $days = floor($hours / 24);
-    
-                if ($days < 30) {
-                    echo $days . ' ngày trước';
-                } else {
-                    $months = floor($days / 30);
-    
-                    if ($months < 12) {
-                        echo $months . ' tháng trước';
-                    } else {
-                        $years = floor($months / 12);
-                        echo $years . ' năm trước';
-                    }
-                }
-            }
+            return floor($minutes / 518400) . " năm trước";
         }
     }
 
     // Get top keywords
-    public function getTopKeywords() 
-    {
-        $data = $this->MyModels->getRaw("SELECT ug_power_point.tags, COUNT(ug_like_post.id) AS like_count 
-            FROM ug_users 
-            INNER JOIN ug_power_point ON ug_users.id = ug_power_point.userId
-            LEFT JOIN ug_like_post ON ug_power_point.id = ug_like_post.id_onwser
-            GROUP BY ug_users.id, ug_power_point.id
-            ORDER BY like_count DESC LIMIT 4");
-    
-        // Handle data keywords (tags) 
+    public function getTopKeywords() {
+        $data = $this->access->MyModelsCrud->getRaw("
+        SELECT 
+            ug_power_point.tags, 
+            COUNT(ug_like_post.id) AS like_count 
+        FROM 
+            ug_users 
+        INNER JOIN 
+            ug_power_point ON ug_users.id = ug_power_point.userId 
+        LEFT JOIN 
+            ug_like_post ON ug_power_point.id = ug_like_post.id_onwser 
+        GROUP BY 
+            ug_users.id, ug_power_point.id 
+        ORDER BY 
+            like_count DESC LIMIT 4");
+
         $arrayTopKeywords = [];
         foreach ( $data as $tags )
         {
@@ -161,7 +155,14 @@ class showInfo extends Controller {
         $uniqueArray = array_map('strtolower', array_unique( array_map( 'trim', $arrayTopKeywords )));
         $arrayResults = array_slice( $uniqueArray, 0, 10 );
         return $arrayResults;
-    }    
+    }
+
+    public static function formatCoin($num) {
+        if ($num >= 1e9) return number_format($num / 1e9, 1) . 'T';
+        if ($num >= 1e6) return number_format($num / 1e6, 1) . 'Tr';
+        if ($num >= 1e3) return number_format($num / 1e3, 1) . 'K';
+        return $num;
+    }
 }
 
 class showInfoYourSelf extends Controller {
