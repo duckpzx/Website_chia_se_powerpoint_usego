@@ -1,10 +1,11 @@
-## 📌 Dự án Website chia sẻ tệp tin thuyết trình USEGO, 
+## Dự án Website chia sẻ tệp tin thuyết trình USEGO, 
 
 * **Các công cụ cần cài:**
 ```PHP | Laragon (ưu tiên) hoặc Xampp | MySql```
 
 * **Hướng dẫn sử dụng:**
-Truy cập vào ```http://localhost:8000``` trên trình duyệt.
+Bật Laragon lên mở MySQL lên ```import``` usego.sql vào, nhấn ```run```
+Truy cập vào ```http://localhost:8000``` trên trình duyệt hoặc ```http://localhost/usego```.
 
 <figure>
   <img src="https://giaodichcode.com/storage/images/codes/6/1-1731981028.png" 
