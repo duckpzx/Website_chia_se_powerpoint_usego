@@ -1,20 +1,39 @@
-<h2>☃️ Usego</h2>
-<h4>💗 Hướng dẫn </h4>
-<p>
-    <b>Các công cụ cần cài:</b>
-    <ol>
-        <li>PHP</li>
-        <li>Laragon hoặc Xampp</li>
-        <li>MySql</li>
-    </ol>
-</p>
-<p>
-    <b>🌻 Hướng dẫn sử dụng:</b>
-    <ol>
-        <li>Truy cập vào <code>http://localhost:8000</code> trên trình duyệt.</li>
-    </ol>
-</p>
-<p>
-    <b>Liên hệ:</b> Nếu có bất kỳ câu hỏi nào, 
-    vui lòng liên hệ qua email: <a href="mailto:ducpham2004nha@gmail.com">ducpham2004nha@gmail.com 👻</a>
-</p>
+## 📌 Dự án Website chia sẻ tệp tin thuyết trình USEGO, 
+
+* **Các công cụ cần cài:**
+```PHP | Laragon (ưu tiên) hoặc Xampp | MySql```
+
+* **Hướng dẫn sử dụng:**
+Truy cập vào ```http://localhost:8000``` trên trình duyệt.
+
+<figure>
+  <img src="https://giaodichcode.com/storage/images/codes/6/1-1731981028.png" 
+       alt="Usego" 
+       style="border:2px solid #ccc; border-radius:12px; max-width:300px;">
+  <br/>
+
+  <img src="https://giaodichcode.com/storage/images/codes/45/9-1731981028.png" 
+       alt="Usego" 
+       style="border:2px solid #ccc; border-radius:12px; max-width:300px;">
+  <br/>
+
+  <img src="https://giaodichcode.com/storage/images/codes/13/10-1731981028.png" 
+       alt="Usego" 
+       style="border:2px solid #ccc; border-radius:12px; max-width:300px;">
+  <br/>
+
+  <img src="https://giaodichcode.com/storage/images/codes/52/6-1731981028.png" 
+       alt="Usego" 
+       style="border:2px solid #ccc; border-radius:12px; max-width:300px;">
+  <br/>
+
+  <img src="https://giaodichcode.com/storage/images/codes/89/3-1731981028.png" 
+       alt="Usego" 
+       style="border:2px solid #ccc; border-radius:12px; max-width:300px;">
+  <br/>
+
+  <img src="https://giaodichcode.com/storage/images/codes/64/11-1732269206.png" 
+       alt="Usego" 
+       style="border:2px solid #ccc; border-radius:12px; max-width:300px;">
+  <br/>
+</figure>
